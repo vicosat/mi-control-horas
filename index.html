@@ -1,354 +1,534 @@
-<!doctype html>
+
+          <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Mi Control - Horas y Pagos (Perú)</title>
+  <title>Mi control - Horas y Pagos (Perú)</title>
   <style>
     :root{
-      --bg:#0b1220;
-      --card:#0f1a2f;
-      --card2:#0c162a;
-      --text:#eaf0ff;
-      --muted:rgba(234,240,255,.72);
-      --stroke:rgba(234,240,255,.10);
-      --accent:#4f7cff;
-      --accent2:#7b61ff;
-      --good:#3ddc97;
-      --warn:#ffcc00;
-      --bad:#ff5d5d;
-      --shadow: 0 18px 50px rgba(0,0,0,.45);
+      --bg:#070A12;
+      --panel:#0E1424;
+      --panel2:#0B1020;
+      --stroke:rgba(255,255,255,.10);
+      --stroke2:rgba(255,255,255,.14);
+      --text:#EAF0FF;
+      --muted:rgba(234,240,255,.70);
+      --muted2:rgba(234,240,255,.55);
+      --accent:#4F63FF;
+      --ok:#4DFFB3;
+      --warn:#FFC14D;
+      --bad:#FF5C7A;
+      --card:rgba(255,255,255,.03);
+      --shadow: 0 14px 45px rgba(0,0,0,.55);
       --radius:18px;
+      --radius2:26px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
-
     *{box-sizing:border-box}
+    html,body{height:100%}
     body{
-      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: linear-gradient(180deg, #070b14 0%, #0b1220 45%, #070b14 100%);
+      margin:0;
+      font-family:var(--sans);
       color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 10% 0%, rgba(79,99,255,.18), transparent 60%),
+        radial-gradient(900px 650px at 90% 20%, rgba(77,255,179,.12), transparent 60%),
+        radial-gradient(900px 900px at 60% 110%, rgba(255,92,122,.08), transparent 60%),
+        var(--bg);
+      overflow-x:hidden;
+    }
+    a{color:inherit}
+    .app{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
     }
 
+    /* Topbar */
     .topbar{
-      position:sticky; top:0; z-index:5;
-      display:flex; align-items:center; gap:10px;
-      padding:14px 14px;
-      background: rgba(7,11,20,.75);
+      position:sticky; top:0; z-index:20;
+      padding:12px 12px calc(12px + env(safe-area-inset-top));
       backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--stroke);
+      background: linear-gradient(to bottom, rgba(7,10,18,.92), rgba(7,10,18,.62));
+      border-bottom:1px solid var(--stroke);
+    }
+    .topbar-inner{
+      display:flex; align-items:center; gap:10px;
+      max-width:1100px; margin:0 auto;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; flex:1;
+      min-width:0;
     }
     .hamb{
       width:44px; height:44px; border-radius:14px;
       border:1px solid var(--stroke);
-      background: rgba(255,255,255,.05);
-      color:var(--text);
+      background:rgba(255,255,255,.03);
       display:grid; place-items:center;
       cursor:pointer;
     }
+    .hamb:active{transform:scale(.98)}
+    .titlewrap{min-width:0}
     .title{
-      display:flex; flex-direction:column; line-height:1.1;
+      font-weight:850; letter-spacing:.2px;
+      font-size:18px; line-height:1.2;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-    .title b{font-size:16px}
-    .title span{font-size:12px; color:var(--muted)}
+    .subtitle{
+      margin-top:2px;
+      color:var(--muted);
+      font-size:12.5px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .top-actions{display:flex; gap:10px}
+    .pill{
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      padding:11px 14px;
+      border-radius:999px;
+      font-weight:750;
+      cursor:pointer;
+      display:flex; align-items:center; gap:8px;
+      box-shadow: 0 10px 22px rgba(0,0,0,.22);
+    }
+    .pill:active{transform:scale(.99)}
+    .pill small{color:var(--muted); font-weight:700}
+    .icon{
+      width:18px; height:18px; display:inline-block;
+    }
 
+    /* Layout */
     .wrap{
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 16px 14px 40px;
-    }
-
-    /* Drawer */
-    .overlay{
-      position:fixed; inset:0;
-      background: rgba(0,0,0,.55);
-      opacity:0; pointer-events:none;
-      transition:.2s ease;
-      z-index:9;
-    }
-    .overlay.open{opacity:1; pointer-events:auto;}
-
-    .drawer{
-      position:fixed; top:0; left:0; height:100vh;
-      width:min(86vw, 330px);
-      transform: translateX(-105%);
-      transition:.22s ease;
-      z-index:10;
-      background: linear-gradient(180deg, #0c1630 0%, #091226 100%);
-      border-right:1px solid var(--stroke);
-      box-shadow: var(--shadow);
-      padding: 18px 14px;
-      display:flex; flex-direction:column;
+      width:100%;
+      max-width:1100px;
+      margin:0 auto;
+      padding:14px 12px 80px;
+      display:grid;
+      grid-template-columns: 1fr;
       gap:14px;
     }
-    .drawer.open{transform: translateX(0);}
-
-    .drawerHead{
-      display:flex; align-items:flex-start; justify-content:space-between;
-      padding: 6px 4px 10px;
-    }
-    .drawerHead .name b{display:block; font-size:18px}
-    .drawerHead .name span{display:block; font-size:12px; color:var(--muted); margin-top:2px}
-    .closeBtn{
-      width:42px; height:42px; border-radius:14px;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.05);
-      color:var(--text);
-      cursor:pointer;
-    }
-
-    .nav{
-      display:flex; flex-direction:column; gap:10px;
-      padding: 0 2px;
-    }
-    .nav button{
-      border:1px solid transparent;
-      background: transparent;
-      color: var(--text);
-      padding: 14px 12px;
-      border-radius: 16px;
-      display:flex; gap:10px; align-items:center;
-      cursor:pointer;
-      text-align:left;
-    }
-    .nav button span{color:var(--muted); font-size:14px}
-    .nav button.active{
-      background: rgba(79,124,255,.16);
-      border-color: rgba(79,124,255,.25);
-    }
-    .nav small{color:var(--muted)}
-
-    /* Cards / layout */
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.03) 100%);
-      border: 1px solid var(--stroke);
-      border-radius: var(--radius);
-      box-shadow: 0 12px 38px rgba(0,0,0,.28);
-      padding: 14px;
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      overflow:hidden;
     }
-    .card h2{margin:0 0 10px; font-size:18px}
-    .muted{color:var(--muted)}
+    .card-h{
+      padding:16px 16px 10px;
+      border-bottom:1px solid var(--stroke);
+      background: linear-gradient(to bottom, rgba(255,255,255,.03), rgba(255,255,255,.00));
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .card-h h2{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.2px;
+    }
+    .card-h p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+    }
+    .card-b{padding:16px}
     .grid{
       display:grid;
       grid-template-columns: 1fr;
-      gap: 12px;
+      gap:12px;
     }
-    @media (min-width: 860px){
+    @media (min-width:840px){
       .grid.two{grid-template-columns: 1fr 1fr;}
       .grid.three{grid-template-columns: 1fr 1fr 1fr;}
     }
 
-    label{display:block; font-size:12px; color:var(--muted); margin: 2px 0 6px}
-    input, select{
-      width:100%;
-      padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid var(--stroke);
-      background: rgba(0,0,0,.22);
-      color: var(--text);
+    /* Inputs */
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+    }
+    label{
+      font-size:12.5px;
+      color:var(--muted);
+      font-weight:750;
+      letter-spacing:.2px;
+    }
+    input, select, textarea{
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--stroke);
+      color:var(--text);
+      border-radius:16px;
+      padding:12px 12px;
+      font-size:15px;
       outline:none;
     }
-    input::placeholder{color: rgba(234,240,255,.45)}
-    .row{display:flex; gap:10px}
-    .row > div{flex:1}
-
-    .btn{
-      border: 1px solid rgba(79,124,255,.35);
-      background: linear-gradient(135deg, rgba(79,124,255,.95), rgba(123,97,255,.85));
-      color:white;
-      padding: 12px 14px;
-      border-radius: 16px;
-      cursor:pointer;
-      font-weight:600;
-      display:inline-flex; align-items:center; justify-content:center;
-      gap:10px;
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(79,99,255,.55);
+      box-shadow: 0 0 0 4px rgba(79,99,255,.18);
     }
-    .btn.secondary{
-      background: rgba(255,255,255,.06);
-      border-color: var(--stroke);
-      color: var(--text);
-      font-weight:600;
+    textarea{min-height:46px; resize:vertical}
+    .row{
+      display:flex; gap:10px; flex-wrap:wrap;
+      align-items:center;
+    }
+    .btn{
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      padding:12px 14px;
+      border-radius:16px;
+      cursor:pointer;
+      font-weight:850;
+      letter-spacing:.2px;
+      display:inline-flex;
+      align-items:center;
+      gap:9px;
+    }
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(79,99,255,.95), rgba(79,99,255,.70));
+      border-color: rgba(79,99,255,.55);
     }
     .btn.danger{
-      background: rgba(255,93,93,.14);
-      border-color: rgba(255,93,93,.35);
+      background: linear-gradient(180deg, rgba(255,92,122,.28), rgba(255,92,122,.10));
+      border-color: rgba(255,92,122,.45);
+    }
+    .btn.ghost{
+      background: transparent;
+    }
+    .btn:active{transform:scale(.99)}
+    .hint{
+      color:var(--muted2);
+      font-size:12.5px;
+      line-height:1.35;
+      margin-top:8px;
     }
 
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.05);
-      color: var(--muted);
-      font-size: 12px;
+    /* Chips / badges */
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      font-weight:800;
+      font-size:12px;
+      white-space:nowrap;
     }
-    .pill strong{color:var(--text)}
-    .note{font-size:12px; color:var(--muted); margin-top:8px}
+    .dot{width:9px;height:9px;border-radius:999px; background:var(--warn)}
+    .dot.ok{background:var(--ok)}
+    .dot.bad{background:var(--bad)}
 
+    /* Table */
     table{
       width:100%;
-      border-collapse: collapse;
+      border-collapse:collapse;
       overflow:hidden;
-      border-radius: 14px;
+      border-radius:16px;
       border:1px solid var(--stroke);
+      background: rgba(255,255,255,.02);
     }
-    th, td{
+    thead th{
+      text-align:left;
+      font-size:12px;
+      color:var(--muted);
       padding:10px 10px;
       border-bottom:1px solid var(--stroke);
-      font-size: 13px;
-      text-align:left;
+      background: rgba(255,255,255,.02);
     }
-    th{color: var(--muted); font-weight:600; background: rgba(255,255,255,.04)}
-    tr:last-child td{border-bottom:none}
-
+    tbody td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      font-size:13.5px;
+      color:var(--text);
+      vertical-align:top;
+    }
+    tbody tr:last-child td{border-bottom:none}
+    .mono{font-family:var(--mono)}
     .right{text-align:right}
-    .good{color: var(--good)}
-    .warn{color: var(--warn)}
-    .bad{color: var(--bad)}
+    .muted{color:var(--muted)}
+    .small{font-size:12.5px}
+    .kpi{
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.02);
+      border-radius:18px;
+      padding:12px 12px;
+    }
+    .kpi .k{color:var(--muted); font-weight:800; font-size:12px}
+    .kpi .v{margin-top:4px; font-weight:900; font-size:18px}
+    .kpi .v small{font-size:12px; color:var(--muted); font-weight:800}
+    .hr{height:1px;background:rgba(255,255,255,.08); margin:14px 0}
 
-    /* Print boleta */
+    /* Drawer */
+    .drawer-backdrop{
+      position:fixed; inset:0; z-index:50;
+      background:rgba(0,0,0,.55);
+      display:none;
+    }
+    .drawer-backdrop.show{display:block}
+    .drawer{
+      position:fixed; z-index:60;
+      top:0; left:0;
+      width:min(330px, 86vw);
+      height:100vh;
+      background: linear-gradient(180deg, rgba(9,12,24,.98), rgba(9,12,24,.92));
+      border-right:1px solid var(--stroke);
+      transform: translateX(-110%);
+      transition: transform .22s ease;
+      box-shadow: 0 35px 90px rgba(0,0,0,.75);
+      padding:16px 14px calc(16px + env(safe-area-inset-bottom));
+    }
+    .drawer.show{transform: translateX(0)}
+    .drawer-top{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+      padding-bottom:12px;
+      border-bottom:1px solid var(--stroke);
+      margin-bottom:12px;
+    }
+    .drawer-title{
+      font-weight:900; font-size:18px;
+    }
+    .drawer-sub{color:var(--muted); font-size:12.5px; margin-top:3px}
+    .drawer-close{
+      width:42px; height:42px; border-radius:14px;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      cursor:pointer;
+      display:grid; place-items:center;
+    }
+    .nav{
+      display:flex; flex-direction:column; gap:8px;
+      margin-top:10px;
+    }
+    .nav a{
+      text-decoration:none;
+      padding:12px 12px;
+      border-radius:18px;
+      border:1px solid transparent;
+      display:flex; align-items:center; gap:10px;
+      color:var(--muted);
+      font-weight:850;
+    }
+    .nav a.active{
+      color:var(--text);
+      background: rgba(79,99,255,.16);
+      border-color: rgba(79,99,255,.25);
+    }
+    .nav a:active{transform:scale(.99)}
+    .footer-note{
+      margin-top:14px;
+      color:var(--muted2);
+      font-size:12.5px;
+      line-height:1.35;
+      border-top:1px solid var(--stroke);
+      padding-top:12px;
+    }
+
+    /* Print (Boleta) */
     @media print{
-      .topbar, .drawer, .overlay, .noPrint {display:none !important;}
-      body{background:white; color:#111}
-      .card{box-shadow:none; background:white; border:1px solid #ddd}
-      input, select{border:1px solid #ddd; background:#fff; color:#111}
-      th{background:#f3f3f3; color:#222}
+      body{background:#fff; color:#000}
+      .topbar, .drawer, .drawer-backdrop, .no-print{display:none !important}
+      .wrap{max-width:900px; padding:0; margin:0}
+      .card{box-shadow:none; border:1px solid #ddd; background:#fff}
+      .card-h{background:#fff}
+      input,select,textarea{border:1px solid #ccc}
+      .muted,.hint{color:#333}
+      table{border:1px solid #ddd}
+      thead th{color:#333}
     }
   </style>
 </head>
 
 <body>
-  <div class="topbar noPrint">
-    <button class="hamb" id="openMenu" aria-label="Abrir menú">☰</button>
-    <div class="title">
-      <b>Mi control</b>
-      <span>Horas y Pagos – Perú</span>
-    </div>
-    <div style="margin-left:auto; display:flex; gap:10px;">
-      <button class="btn secondary" id="btnExport">Exportar</button>
-      <button class="btn secondary" id="btnImport">Importar</button>
-    </div>
-  </div>
+<div class="app">
 
-  <div class="overlay" id="overlay"></div>
-
-  <aside class="drawer" id="drawer">
-    <div class="drawerHead">
-      <div class="name">
-        <b>Mi control</b>
-        <span>Horas y Pagos – Perú</span>
+  <!-- Drawer -->
+  <div id="backdrop" class="drawer-backdrop"></div>
+  <aside id="drawer" class="drawer">
+    <div class="drawer-top">
+      <div>
+        <div class="drawer-title">Mi control</div>
+        <div class="drawer-sub">Horas y Pagos – Perú</div>
       </div>
-      <button class="closeBtn" id="closeMenu" aria-label="Cerrar">✕</button>
+      <button class="drawer-close" id="closeDrawer" aria-label="Cerrar">✕</button>
     </div>
 
     <nav class="nav">
-      <button data-view="hoy" class="active">🕒 <span>Hoy</span></button>
-      <button data-view="historico">📅 <span>Histórico</span></button>
-      <button data-view="resumen">📊 <span>Resumen</span></button>
-      <button data-view="boleta">🧾 <span>Boleta</span></button>
-      <button data-view="estadisticas">📈 <span>Estadísticas</span></button>
-      <button data-view="config">⚙️ <span>Configuración</span></button>
-      <small class="muted">Datos guardados en tu teléfono (localStorage).</small>
+      <a href="#hoy" data-page="hoy" class="active">🕒 Hoy</a>
+      <a href="#historico" data-page="historico">📅 Histórico</a>
+      <a href="#resumen" data-page="resumen">📊 Resumen</a>
+      <a href="#boleta" data-page="boleta">🧾 Boleta</a>
+      <a href="#estadisticas" data-page="estadisticas">📈 Estadísticas</a>
+      <a href="#config" data-page="config">⚙️ Configuración</a>
     </nav>
+
+    <div class="footer-note">
+      Datos guardados en tu teléfono (<span class="mono">localStorage</span>).<br/>
+      Si compartes el link, cada persona guarda lo suyo en su celular.
+    </div>
   </aside>
 
-  <main class="wrap">
-    <!-- HOY -->
-    <section id="view-hoy" class="view">
-      <div class="card">
-        <h2>Hoy</h2>
-        <div class="grid two">
-          <div>
-            <label>Fecha</label>
-            <input id="dFecha" type="date">
-          </div>
-          <div>
-            <label>Día</label>
-            <input id="dDia" type="text" disabled placeholder="(automático)">
-          </div>
-        </div>
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button id="openDrawer" class="hamb" aria-label="Menú">☰</button>
 
-        <div class="grid two" style="margin-top:12px;">
-          <div>
-            <label>Entrada</label>
-            <input id="dEntrada" type="time">
-          </div>
-          <div>
-            <label>Salida</label>
-            <input id="dSalida" type="time">
-          </div>
-        </div>
-
-        <div class="grid two" style="margin-top:12px;">
-          <div>
-            <label>Refrigerio (minutos)</label>
-            <input id="dRefrig" type="number" min="0" step="5" placeholder="Ej: 60">
-          </div>
-          <div>
-            <label>Notas (opcional)</label>
-            <input id="dNotas" type="text" placeholder="Ej: turno noche">
-          </div>
-        </div>
-
-        <div class="grid three" style="margin-top:12px;">
-          <div class="card" style="padding:12px; background: rgba(255,255,255,.03)">
-            <label><input id="dFeriado" type="checkbox"> Feriado trabajado</label>
-            <div class="note">Si marcas feriado, se contará como horas 100% (configurable).</div>
-          </div>
-          <div class="card" style="padding:12px; background: rgba(255,255,255,.03)">
-            <label><input id="dSabado" type="checkbox"> Sábado (emergencia)</label>
-            <div class="note">Se calcula según tu configuración (35% o 100%).</div>
-          </div>
-          <div class="card" style="padding:12px; background: rgba(255,255,255,.03)">
-            <label><input id="dForzar" type="checkbox"> Guardar aunque falte algo</label>
-            <div class="note">Útil si quieres registrar solo días o notas.</div>
-          </div>
-        </div>
-
-        <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap">
-          <button class="btn" id="btnGuardarHoy">Guardar día</button>
-          <button class="btn secondary" id="btnLimpiarHoy">Limpiar</button>
-        </div>
-
-        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
-          <span class="pill">Jornada L–V: <strong id="pillJornada">09:36</strong></span>
-          <span class="pill">Extra 25%: <strong>primeras 2h</strong></span>
-          <span class="pill">Extra 35%: <strong>desde la 3ra hora</strong></span>
+      <div class="brand">
+        <div class="titlewrap">
+          <div class="title">Mi control</div>
+          <div class="subtitle">Horas y Pagos – Perú</div>
         </div>
       </div>
 
-      <div class="card" style="margin-top:12px;">
-        <h2>Resultado del día (automático)</h2>
+      <div class="top-actions no-print">
+        <button class="pill" id="btnExport">
+          ⤓ <span>Exportar</span>
+        </button>
+        <button class="pill" id="btnImport">
+          ⤒ <span>Importar</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- HOY -->
+    <section id="page-hoy" class="card page">
+      <div class="card-h">
+        <div>
+          <h2>Hoy</h2>
+          <p>Registra tu asistencia del día (entrada, salida, refrigerio). Se calcula automáticamente ordinarias y extras.</p>
+        </div>
+        <div class="row no-print">
+          <button class="btn danger" id="btnLimpiarDia">🧹 Limpiar</button>
+        </div>
+      </div>
+      <div class="card-b">
+        <div class="grid two">
+          <div class="field">
+            <label>Fecha</label>
+            <input id="fecha" type="date" />
+          </div>
+          <div class="field">
+            <label>Día</label>
+            <input id="diaNombre" type="text" disabled />
+          </div>
+
+          <div class="field">
+            <label>Entrada</label>
+            <input id="entrada" type="time" value="07:00"/>
+          </div>
+          <div class="field">
+            <label>Salida</label>
+            <input id="salida" type="time" value="17:36"/>
+          </div>
+
+          <div class="field">
+            <label>Refrigerio (minutos)</label>
+            <input id="refrigerio" type="number" min="0" step="1" value="60"/>
+          </div>
+          <div class="field">
+            <label>Notas (opcional)</label>
+            <input id="notas" type="text" placeholder="Ej: Almacén Yura" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <label class="badge" style="cursor:pointer">
+            <span class="dot" style="background:var(--warn)"></span>
+            <input id="chkFeriado" type="checkbox" style="transform:scale(1.15); margin-right:8px" />
+            Feriado trabajado <span class="muted small">(se cuenta al 100%)</span>
+          </label>
+        </div>
+
+        <div class="hr"></div>
+
         <div class="grid three">
-          <div class="pill">Horas trabajadas: <strong id="rTrab">0:00</strong></div>
-          <div class="pill">Ordinarias: <strong id="rOrd">0:00</strong></div>
-          <div class="pill">Extras: <strong id="rExtra">0:00</strong></div>
+          <div class="kpi">
+            <div class="k">Total trabajado</div>
+            <div class="v"><span id="kTrab">0:00</span> <small>(HH:MM)</small></div>
+          </div>
+          <div class="kpi">
+            <div class="k">Ordinarias</div>
+            <div class="v"><span id="kOrd">0:00</span> <small>(HH:MM)</small></div>
+          </div>
+          <div class="kpi">
+            <div class="k">Extras</div>
+            <div class="v"><span id="kExt">0:00</span> <small>(HH:MM)</small></div>
+          </div>
         </div>
-        <div class="grid three" style="margin-top:10px;">
-          <div class="pill">Extra 25%: <strong id="rE25">0:00</strong></div>
-          <div class="pill">Extra 35%: <strong id="rE35">0:00</strong></div>
-          <div class="pill">Extra 100%: <strong id="rE100">0:00</strong></div>
+
+        <div class="grid three" style="margin-top:10px">
+          <div class="kpi">
+            <div class="k">Extra 25%</div>
+            <div class="v"><span id="k25">0:00</span> <small>(HH:MM)</small></div>
+          </div>
+          <div class="kpi">
+            <div class="k">Extra 35%</div>
+            <div class="v"><span id="k35">0:00</span> <small>(HH:MM)</small></div>
+          </div>
+          <div class="kpi">
+            <div class="k">Extra 100%</div>
+            <div class="v"><span id="k100">0:00</span> <small>(HH:MM)</small></div>
+          </div>
         </div>
-        <div class="note">El sobretiempo se cuenta después de tu jornada diaria (L–V). Si es feriado o domingo se considera 100%.</div>
+
+        <div class="row no-print" style="margin-top:14px">
+          <button class="btn primary" id="btnGuardarDia">✅ Guardar día</button>
+          <button class="btn" id="btnVerMesActual">📅 Ver mes en Histórico</button>
+          <span class="badge"><span class="dot ok"></span><span id="msgSave">Listo.</span></span>
+        </div>
+
+        <div class="hint">
+          Reglas: Lun–Vie jornada 9:36. Sábado todo extra 25%. Domingo/feriado extra 100%.<br/>
+          En Lun–Vie: extras = trabajado - 9:36. Primeras 2 horas extra → 25%, lo demás → 35%.
+        </div>
       </div>
     </section>
 
-    <!-- HISTÓRICO -->
-    <section id="view-historico" class="view" style="display:none">
-      <div class="card">
-        <h2>Histórico</h2>
+    <!-- HISTORICO -->
+    <section id="page-historico" class="card page" style="display:none">
+      <div class="card-h">
+        <div>
+          <h2>Histórico</h2>
+          <p>Revisa tu asistencia guardada por mes. Puedes borrar un mes completo.</p>
+        </div>
+        <div class="row no-print">
+          <button class="btn" id="btnRefrescarHist">🔄 Refrescar</button>
+          <button class="btn danger" id="btnBorrarMes">🗑️ Borrar mes</button>
+        </div>
+      </div>
+      <div class="card-b">
         <div class="grid two">
-          <div>
+          <div class="field">
             <label>Mes</label>
-            <input id="hMes" type="month">
+            <select id="selMes"></select>
           </div>
-          <div style="display:flex; align-items:end; gap:10px">
-            <button class="btn secondary" id="btnRefrescarHist">Refrescar</button>
-            <button class="btn danger secondary" id="btnBorrarMes">Borrar mes</button>
+          <div class="field">
+            <label>Buscar</label>
+            <input id="busca" type="text" placeholder="Ej: 2026-02 o nota..." />
           </div>
         </div>
 
-        <div style="margin-top:12px; overflow:auto">
-          <table id="tablaHist">
+        <div class="hint" style="margin-top:10px">
+          Todo se guarda en tu teléfono. Si compartes el link, cada persona guarda lo suyo en su celular.
+        </div>
+
+        <div class="hr"></div>
+
+        <div style="overflow:auto">
+          <table>
             <thead>
               <tr>
                 <th>Fecha</th>
@@ -360,790 +540,875 @@
                 <th class="right">25%</th>
                 <th class="right">35%</th>
                 <th class="right">100%</th>
-                <th>Flags</th>
-                <th class="right">Acción</th>
+                <th>Nota</th>
+                <th class="no-print">Acción</th>
               </tr>
             </thead>
-            <tbody></tbody>
+            <tbody id="histBody"></tbody>
           </table>
         </div>
-
-        <div class="note">Todo se guarda en tu teléfono. Si compartes el link, cada persona guarda lo suyo en su celular.</div>
       </div>
     </section>
 
     <!-- RESUMEN -->
-    <section id="view-resumen" class="view" style="display:none">
-      <div class="card">
-        <h2>Resumen</h2>
+    <section id="page-resumen" class="card page" style="display:none">
+      <div class="card-h">
+        <div>
+          <h2>Resumen</h2>
+          <p>Resumen del mes: días, horas ordinarias y extras.</p>
+        </div>
+      </div>
+      <div class="card-b">
         <div class="grid two">
-          <div>
+          <div class="field">
             <label>Mes</label>
-            <input id="rMes" type="month">
+            <select id="selMesResumen"></select>
           </div>
-          <div style="display:flex; align-items:end; gap:10px">
-            <button class="btn" id="btnCalcularResumen">Calcular</button>
-            <button class="btn secondary" id="btnLimpiarDatos">Limpiar todo</button>
+          <div class="field">
+            <label>Jornada Lun–Vie (HH:MM)</label>
+            <input id="cfgJornada" type="text" value="09:36"/>
           </div>
         </div>
 
-        <div class="grid three" style="margin-top:12px;">
-          <div class="card" style="background: rgba(255,255,255,.03)">
-            <div class="muted">Días</div><div style="font-size:26px; font-weight:800" id="sumDias">0</div>
+        <div class="hr"></div>
+
+        <div class="grid three">
+          <div class="kpi">
+            <div class="k">Días registrados</div>
+            <div class="v"><span id="rDias">0</span></div>
           </div>
-          <div class="card" style="background: rgba(255,255,255,.03)">
-            <div class="muted">Hrs Ord.</div><div style="font-size:26px; font-weight:800" id="sumOrd">0:00</div>
+          <div class="kpi">
+            <div class="k">Horas ordinarias</div>
+            <div class="v"><span id="rOrd">0:00</span> <small>(HH:MM)</small></div>
           </div>
-          <div class="card" style="background: rgba(255,255,255,.03)">
-            <div class="muted">Extra 25%</div><div style="font-size:26px; font-weight:800" id="sumE25">0:00</div>
+          <div class="kpi">
+            <div class="k">Extras totales</div>
+            <div class="v"><span id="rExt">0:00</span> <small>(HH:MM)</small></div>
           </div>
-          <div class="card" style="background: rgba(255,255,255,.03)">
-            <div class="muted">Extra 35%</div><div style="font-size:26px; font-weight:800" id="sumE35">0:00</div>
+        </div>
+
+        <div class="grid three" style="margin-top:10px">
+          <div class="kpi">
+            <div class="k">Extra 25%</div>
+            <div class="v"><span id="r25">0:00</span> <small>(HH:MM)</small></div>
           </div>
-          <div class="card" style="background: rgba(255,255,255,.03)">
-            <div class="muted">Extra 100%</div><div style="font-size:26px; font-weight:800" id="sumE100">0:00</div>
+          <div class="kpi">
+            <div class="k">Extra 35%</div>
+            <div class="v"><span id="r35">0:00</span> <small>(HH:MM)</small></div>
           </div>
-          <div class="card" style="background: rgba(255,255,255,.03)">
-            <div class="muted">Feriados</div><div style="font-size:26px; font-weight:800" id="sumFeriados">0</div>
+          <div class="kpi">
+            <div class="k">Extra 100%</div>
+            <div class="v"><span id="r100">0:00</span> <small>(HH:MM)</small></div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- BOLETA -->
-    <section id="view-boleta" class="view" style="display:none">
-      <div class="card">
-        <h2>Boleta</h2>
-        <div class="muted" style="margin-bottom:10px;">Sin encabezado, solo lo importante (como tú pediste).</div>
+    <section id="page-boleta" class="card page" style="display:none">
+      <div class="card-h">
+        <div>
+          <h2>Boleta (simple, sin encabezado)</h2>
+          <p>Ingresa tu básico mensual y se calcula pagos por horas extra (estimado).</p>
+        </div>
+        <div class="row no-print">
+          <button class="btn" id="btnImprimir">🖨️ Imprimir / Guardar PDF</button>
+        </div>
+      </div>
+      <div class="card-b">
 
         <div class="grid two">
-          <div>
-            <label>Mes (solo para mostrar)</label>
-            <input id="bMes" type="text" placeholder="Ej: Febrero 2026">
+          <div class="field">
+            <label>Mes</label>
+            <select id="selMesBoleta"></select>
           </div>
-          <div>
+          <div class="field">
             <label>Modo</label>
-            <select id="bModo">
-              <option value="acumulado">Acumulado al día</option>
-              <option value="proyeccion">Proyección mensual</option>
+            <select id="modoBoleta">
+              <option value="acumulado">Acumulado al día (según asistencia registrada)</option>
+              <option value="proyeccion">Proyección mensual (completo)</option>
             </select>
           </div>
         </div>
 
-        <div class="grid two" style="margin-top:12px;">
-          <div>
+        <div class="hr"></div>
+
+        <div class="grid two">
+          <div class="field">
             <label>Remuneración básica mensual (S/)</label>
-            <input id="bBasico" type="number" min="0" step="0.01" placeholder="Ej: 2700">
+            <input id="bBasico" type="number" step="0.01" value="2700"/>
           </div>
-          <div>
+          <div class="field">
             <label>Asignación familiar (S/) (opcional)</label>
-            <input id="bAsigFam" type="number" min="0" step="0.01" placeholder="Ej: 102.50">
+            <input id="bAsigFam" type="number" step="0.01" value="0"/>
           </div>
-        </div>
 
-        <div class="grid two" style="margin-top:12px;">
-          <div>
+          <div class="field">
             <label>Días laborables del mes (L–V)</label>
-            <input id="bDiasMes" type="number" min="1" step="1" placeholder="Ej: 23">
+            <input id="bDiasMesLV" type="number" step="1" value="23"/>
           </div>
-          <div>
+          <div class="field">
             <label>Jornada diaria L–V (HH:MM)</label>
-            <input id="bJornada" type="text" placeholder="09:36">
+            <input id="bJornada" type="text" value="09:36"/>
           </div>
         </div>
 
-        <div class="grid two" style="margin-top:12px;">
-          <div>
-            <label>Mes para calcular (desde tus registros)</label>
-            <input id="bMesCalc" type="month">
+        <div class="hint">
+          Proyección mensual usa: Básico + Asig.Fam (mes completo).<br/>
+          Acumulado al día: calcula proporcional según días L–V trabajados registrados (no incluye domingos no registrados).
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="grid three">
+          <div class="kpi">
+            <div class="k">Básico (modo)</div>
+            <div class="v">S/ <span id="outBasico">0.00</span></div>
           </div>
-          <div style="display:flex; align-items:end; gap:10px">
-            <button class="btn" id="btnCalcularBoleta">Calcular</button>
-            <button class="btn secondary" onclick="window.print()">Imprimir / PDF</button>
+          <div class="kpi">
+            <div class="k">Horas extra 25%</div>
+            <div class="v">S/ <span id="outP25">0.00</span> <small class="muted">(h: <span id="outH25">0:00</span>)</small></div>
+          </div>
+          <div class="kpi">
+            <div class="k">Horas extra 35%</div>
+            <div class="v">S/ <span id="outP35">0.00</span> <small class="muted">(h: <span id="outH35">0:00</span>)</small></div>
           </div>
         </div>
 
-        <div class="card" style="margin-top:12px; background: rgba(255,255,255,.03)">
-          <h2>Ingresos</h2>
+        <div class="grid three" style="margin-top:10px">
+          <div class="kpi">
+            <div class="k">Horas extra 100%</div>
+            <div class="v">S/ <span id="outP100">0.00</span> <small class="muted">(h: <span id="outH100">0:00</span>)</small></div>
+          </div>
+          <div class="kpi">
+            <div class="k">Ingresos totales (estimado)</div>
+            <div class="v">S/ <span id="outIng">0.00</span></div>
+          </div>
+          <div class="kpi">
+            <div class="k">Valor hora ordinaria (referencia)</div>
+            <div class="v">S/ <span id="outHora">0.00</span></div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="hint">
+          Nota: esto es un cálculo estimado (no reemplaza la boleta real). Sirve para controlar tus horas y aproximar extras.
+        </div>
+      </div>
+    </section>
+
+    <!-- ESTADISTICAS -->
+    <section id="page-estadisticas" class="card page" style="display:none">
+      <div class="card-h">
+        <div>
+          <h2>Estadísticas</h2>
+          <p>Vista rápida de horas por mes.</p>
+        </div>
+      </div>
+      <div class="card-b">
+        <div class="hint">Muestra los últimos meses que tengas guardados.</div>
+        <div class="hr"></div>
+        <div style="overflow:auto">
           <table>
-            <tbody>
-              <tr><td>Remuneración básica</td><td class="right" id="biBasico">S/ 0.00</td></tr>
-              <tr><td>Horas extra 25%</td><td class="right" id="biE25">S/ 0.00</td></tr>
-              <tr><td>Horas extra 35%</td><td class="right" id="biE35">S/ 0.00</td></tr>
-              <tr><td>Horas extra 100%</td><td class="right" id="biE100">S/ 0.00</td></tr>
-              <tr><td>Asignación familiar</td><td class="right" id="biFam">S/ 0.00</td></tr>
-              <tr><th>Ingreso total</th><th class="right" id="biTotal">S/ 0.00</th></tr>
-            </tbody>
+            <thead>
+              <tr>
+                <th>Mes (YYYY-MM)</th>
+                <th class="right">Días</th>
+                <th class="right">Ord.</th>
+                <th class="right">25%</th>
+                <th class="right">35%</th>
+                <th class="right">100%</th>
+                <th class="right">Total</th>
+              </tr>
+            </thead>
+            <tbody id="statsBody"></tbody>
           </table>
-        </div>
-
-        <div class="card" style="margin-top:12px; background: rgba(255,255,255,.03)">
-          <h2>Descuentos (configurable)</h2>
-          <div class="grid three noPrint">
-            <div>
-              <label>AFP obligatorio (%)</label>
-              <input id="dAfpObl" type="number" step="0.01">
-            </div>
-            <div>
-              <label>AFP prima/seguro (%)</label>
-              <input id="dAfpPri" type="number" step="0.01">
-            </div>
-            <div>
-              <label>AFP comisión (%)</label>
-              <input id="dAfpCom" type="number" step="0.01">
-            </div>
-          </div>
-
-          <table style="margin-top:10px;">
-            <tbody>
-              <tr><td>AFP obligatorio</td><td class="right bad" id="bdObl">- S/ 0.00</td></tr>
-              <tr><td>AFP prima</td><td class="right bad" id="bdPri">- S/ 0.00</td></tr>
-              <tr><td>AFP comisión</td><td class="right bad" id="bdCom">- S/ 0.00</td></tr>
-              <tr><th>Total descuentos</th><th class="right bad" id="bdTotal">- S/ 0.00</th></tr>
-            </tbody>
-          </table>
-
-          <div class="note">Esto es una aproximación tipo “control personal”. Tu boleta real puede variar por otros conceptos.</div>
-        </div>
-
-        <div class="card" style="margin-top:12px; background: rgba(79,124,255,.12); border-color: rgba(79,124,255,.25)">
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-            <div>
-              <div class="muted">Neto a recibir</div>
-              <div style="font-size:34px; font-weight:900" id="bNeto">S/ 0.00</div>
-            </div>
-            <div class="pill">EsSalud (referencial 9% empleador): <strong id="bEssalud">S/ 0.00</strong></div>
-          </div>
         </div>
       </div>
     </section>
-
-    <!-- ESTADÍSTICAS -->
-    <section id="view-estadisticas" class="view" style="display:none">
-      <div class="card">
-        <h2>Estadísticas</h2>
-        <div class="muted">Aquí después podemos poner gráficos (por ahora: resumen rápido).</div>
-        <div style="margin-top:10px" id="statsBox" class="grid two"></div>
-      </div>
-    </section>
-
 
     <!-- CONFIG -->
-    <section id="view-config" class="view" style="display:none">
-      <div class="card">
-        <h2>Configuración</h2>
-
+    <section id="page-config" class="card page" style="display:none">
+      <div class="card-h">
+        <div>
+          <h2>Configuración</h2>
+          <p>Opciones básicas y herramientas.</p>
+        </div>
+      </div>
+      <div class="card-b">
         <div class="grid two">
-          <div>
-            <label>Jornada diaria L–V (minutos)</label>
-            <input id="cfgJornadaMin" type="number" min="60" step="1" placeholder="Ej: 576 (9h36m)">
+          <div class="field">
+            <label>Jornada L–V (HH:MM)</label>
+            <input id="cfgJornada2" type="text" value="09:36"/>
           </div>
-          <div>
-            <label>Sábado (emergencia) se paga como</label>
-            <select id="cfgSabadoModo">
-              <option value="35">Extra 35%</option>
-              <option value="100">Extra 100%</option>
-            </select>
+          <div class="field">
+            <label>Nombre (opcional)</label>
+            <input id="cfgNombre" type="text" placeholder="Ej: David" />
           </div>
         </div>
 
-        <div class="grid two" style="margin-top:12px;">
-          <div>
-            <label>Feriado trabajado se paga como</label>
-            <select id="cfgFeriadoModo">
-              <option value="100">Extra 100%</option>
-              <option value="35">Extra 35%</option>
-            </select>
-          </div>
-          <div style="display:flex; align-items:end; gap:10px;">
-            <button class="btn" id="btnGuardarCfg">Guardar configuración</button>
-            <button class="btn danger secondary" id="btnResetCfg">Restablecer</button>
-          </div>
+        <div class="row no-print" style="margin-top:14px">
+          <button class="btn primary" id="btnGuardarCfg">💾 Guardar configuración</button>
+          <button class="btn danger" id="btnBorrarTodo">🧨 Borrar TODO (localStorage)</button>
         </div>
 
-        <div class="note">Recomendado: 9h 36m = 576 minutos para L–V.</div>
+        <div class="hint">
+          GitHub no usa FTP. Para subir por carpetas desde celular: usa “Subir archivo” en el repo, o edita archivos desde GitHub web.
+        </div>
       </div>
     </section>
+
   </main>
+</div>
 
 <script>
-/* ========================
-   Utilidades
-======================== */
-const $ = (id)=>document.getElementById(id);
+/* =========================
+   Mi Control - 1 archivo
+   Guarda en localStorage
+   Clave por mes: mcH:YYYY-MM
+   ========================= */
 
-const LS_KEYS = {
-  entries: "mc_entries_v1",
-  cfg: "mc_cfg_v1"
-};
-
-const WEEKDAYS = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+const LS_CFG = "mcH:cfg:v1";
 
 function pad2(n){ return String(n).padStart(2,"0"); }
+function clamp(n,min,max){ return Math.max(min, Math.min(max,n)); }
 
+function isoToKeyMes(isoDate){ // "2026-02-02" -> "2026-02"
+  const [y,m] = isoDate.split("-"); return `${y}-${m}`;
+}
+function isoToDMY(isoDate){
+  const [y,m,d] = isoDate.split("-"); return `${d}/${m}/${y}`;
+}
+function dmyToISO(dmy){
+  const [d,m,y] = dmy.split("/"); return `${y}-${m}-${d}`;
+}
+function dayNameFromISO(iso){
+  const dt = new Date(iso+"T00:00:00");
+  const days = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+  return days[dt.getDay()];
+}
+function dayIndexFromISO(iso){
+  const dt = new Date(iso+"T00:00:00");
+  return dt.getDay(); // 0=Dom,6=Sáb
+}
+function hhmmToMin(hhmm){
+  const [h,m] = String(hhmm).split(":").map(Number);
+  return (h*60)+(m||0);
+}
 function minToHHMM(min){
   min = Math.max(0, Math.round(min));
   const h = Math.floor(min/60);
   const m = min%60;
   return `${h}:${pad2(m)}`;
 }
-
-function hhmmToMin(hhmm){
-  if(!hhmm) return 0;
-  const m = String(hhmm).trim().match(/^(\d{1,2}):(\d{2})$/);
-  if(!m) return 0;
-  return (parseInt(m[1],10)*60) + parseInt(m[2],10);
+function timeToMin(t){ // "07:00" -> minutes from midnight
+  const [h,m] = t.split(":").map(Number);
+  return h*60 + m;
 }
-
 function money(n){
-  const v = (Number(n)||0);
-  return "S/ " + v.toFixed(2);
+  return (Math.round((Number(n)||0)*100)/100).toFixed(2);
 }
-
-function ymFromDateStr(d){ // "YYYY-MM-DD" -> "YYYY-MM"
-  return d?.slice(0,7) || "";
-}
-
-function safeParseJSON(s, fallback){
-  try{ return JSON.parse(s); }catch(e){ return fallback; }
-}
-
-/* ========================
-   Datos / Config
-======================== */
-const defaultCfg = {
-  jornadaMin: 576,      // 9h36m
-  sabadoModo: "35",     // "35" o "100"
-  feriadoModo: "100",
-  afpObl: 10,
-  afpPri: 1.84,
-  afpCom: 0.38
-};
 
 function loadCfg(){
-  const cfg = safeParseJSON(localStorage.getItem(LS_KEYS.cfg), null);
-  return {...defaultCfg, ...(cfg||{})};
-}
-function saveCfg(cfg){
-  localStorage.setItem(LS_KEYS.cfg, JSON.stringify(cfg));
-}
-function loadEntries(){
-  return safeParseJSON(localStorage.getItem(LS_KEYS.entries), []);
-}
-function saveEntries(arr){
-  localStorage.setItem(LS_KEYS.entries, JSON.stringify(arr));
-}
-
-/* ========================
-   Cálculo diario
-======================== */
-function calcDay(entry, cfg){
-  // devuelve minutos: worked, ord, e25, e35, e100
-  const jornadaMin = Number(cfg.jornadaMin)||576;
-
-  const date = new Date(entry.fecha+"T00:00:00");
-  const dow = date.getDay(); // 0 dom ... 6 sab
-  const isSunday = dow === 0;
-  const isSaturday = dow === 6;
-
-  const inMin = hhmmToMin(entry.entrada);
-  const outMin = hhmmToMin(entry.salida);
-  const breakMin = Math.max(0, Number(entry.refrig||0));
-  let worked = 0;
-
-  if(inMin && outMin){
-    worked = outMin - inMin - breakMin;
-    if(worked < 0) worked = 0;
+  const raw = localStorage.getItem(LS_CFG);
+  let cfg = { jornadaLV:"09:36", nombre:"" };
+  if(raw){
+    try{ cfg = {...cfg, ...JSON.parse(raw)}; }catch{}
   }
+  // reflect
+  document.getElementById("cfgJornada").value = cfg.jornadaLV || "09:36";
+  document.getElementById("cfgJornada2").value = cfg.jornadaLV || "09:36";
+  document.getElementById("cfgNombre").value = cfg.nombre || "";
+  // boleta defaults
+  document.getElementById("bJornada").value = cfg.jornadaLV || "09:36";
+  return cfg;
+}
+function saveCfg(){
+  const jornadaLV = (document.getElementById("cfgJornada2").value || "09:36").trim();
+  const nombre = (document.getElementById("cfgNombre").value || "").trim();
+  const cfg = { jornadaLV, nombre };
+  localStorage.setItem(LS_CFG, JSON.stringify(cfg));
+  // reflect everywhere
+  document.getElementById("cfgJornada").value = jornadaLV;
+  document.getElementById("bJornada").value = jornadaLV;
+  toast("Configuración guardada ✅");
+  recalcAll();
+}
 
-  let ord=0, e25=0, e35=0, e100=0;
+function getMesStore(keyMes){
+  const k = `mcH:${keyMes}`;
+  const raw = localStorage.getItem(k);
+  if(!raw) return { keyMes, dias: [] };
+  try{
+    const obj = JSON.parse(raw);
+    if(!obj || !Array.isArray(obj.dias)) return { keyMes, dias: [] };
+    return obj;
+  }catch{
+    return { keyMes, dias: [] };
+  }
+}
+function setMesStore(keyMes, obj){
+  localStorage.setItem(`mcH:${keyMes}`, JSON.stringify(obj));
+}
 
-  const feriado = !!entry.feriado;
-  const sabadoEmerg = !!entry.sabado;
-
-  // Si feriado o domingo -> extra según config (por defecto 100)
-  if(feriado || isSunday){
-    if(cfg.feriadoModo === "35"){
-      e35 = worked;
-    }else{
-      e100 = worked;
+function listMesKeys(){
+  const keys = [];
+  for(let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    if(k && k.startsWith("mcH:") && k !== LS_CFG){
+      const mes = k.replace("mcH:","");
+      if(/^\d{4}-\d{2}$/.test(mes)) keys.push(mes);
     }
-    return {worked, ord, e25, e35, e100};
   }
-
-  // Sábado emergencia
-  if(isSaturday && sabadoEmerg){
-    if(cfg.sabadoModo === "100"){
-      e100 = worked;
-    }else{
-      e35 = worked;
-    }
-    return {worked, ord, e25, e35, e100};
-  }
-
-  // L–V normal (o sábado sin emergencia -> no cuenta)
-  if(dow >= 1 && dow <= 5){
-    ord = Math.min(worked, jornadaMin);
-    const extra = Math.max(0, worked - jornadaMin);
-    const first2h = Math.min(extra, 120);
-    const rest = Math.max(0, extra - 120);
-    e25 = first2h;
-    e35 = rest;
-  }
-
-  return {worked, ord, e25, e35, e100};
+  keys.sort().reverse();
+  return keys;
 }
 
-/* ========================
-   Navegación (drawer)
-======================== */
-function openDrawer(){
-  $("drawer").classList.add("open");
-  $("overlay").classList.add("open");
-}
-function closeDrawer(){
-  $("drawer").classList.remove("open");
-  $("overlay").classList.remove("open");
-}
-$("openMenu").addEventListener("click", openDrawer);
-$("closeMenu").addEventListener("click", closeDrawer);
-$("overlay").addEventListener("click", closeDrawer);
+function computeDayRecord({iso, entrada, salida, refrigerioMin, feriado, notas}, jornadaLV){
+  // minutes worked
+  let e = timeToMin(entrada);
+  let s = timeToMin(salida);
+  if(s < e) s += 24*60; // if crosses midnight
+  const total = Math.max(0, (s - e) - (Number(refrigerioMin)||0));
+  const dayIdx = dayIndexFromISO(iso);
+  const diaNombre = dayNameFromISO(iso);
 
-document.querySelectorAll(".nav button").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    showView(btn.dataset.view);
+  const jornadaMin = hhmmToMin(jornadaLV || "09:36"); // default 576
+  let ord = 0, x25=0, x35=0, x100=0;
+
+  const isDom = (dayIdx===0);
+  const isSab = (dayIdx===6);
+  const isFeriado = !!feriado;
+
+  if(isFeriado || isDom){
+    x100 = total;
+  } else if(isSab){
+    x25 = total; // sábado todo al 25%
+  } else {
+    // Lun-Vie
+    ord = Math.min(total, jornadaMin);
+    const extra = Math.max(0, total - jornadaMin);
+    x25 = Math.min(extra, 120); // primeras 2 horas
+    x35 = Math.max(0, extra - 120);
+  }
+
+  return {
+    iso,
+    dmy: isoToDMY(iso),
+    diaNombre,
+    entrada, salida,
+    refrigerioMin: Number(refrigerioMin)||0,
+    notas: notas||"",
+    feriado: !!feriado,
+    totalMin: total,
+    ordMin: ord,
+    x25Min: x25,
+    x35Min: x35,
+    x100Min: x100
+  };
+}
+
+/* ===== UI helpers ===== */
+function toast(txt){
+  const el = document.getElementById("msgSave");
+  if(!el) return;
+  el.textContent = txt;
+  setTimeout(()=>{ el.textContent = "Listo."; }, 2500);
+}
+function setActivePage(page){
+  document.querySelectorAll(".page").forEach(s=>s.style.display="none");
+  const active = document.getElementById(`page-${page}`);
+  if(active) active.style.display = "";
+
+  document.querySelectorAll(".nav a").forEach(a=>{
+    a.classList.toggle("active", a.dataset.page===page);
+  });
+}
+
+/* ===== Drawer events ===== */
+const drawer = document.getElementById("drawer");
+const backdrop = document.getElementById("backdrop");
+function openDrawer(){ drawer.classList.add("show"); backdrop.classList.add("show"); }
+function closeDrawer(){ drawer.classList.remove("show"); backdrop.classList.remove("show"); }
+document.getElementById("openDrawer").addEventListener("click", openDrawer);
+document.getElementById("closeDrawer").addEventListener("click", closeDrawer);
+backdrop.addEventListener("click", closeDrawer);
+
+document.querySelectorAll(".nav a").forEach(a=>{
+  a.addEventListener("click", (e)=>{
+    e.preventDefault();
     closeDrawer();
+    const page = a.dataset.page;
+    setActivePage(page);
+    if(page==="historico"){ renderHistorico(); }
+    if(page==="resumen"){ renderResumen(); }
+    if(page==="boleta"){ renderBoleta(); }
+    if(page==="estadisticas"){ renderStats(); }
   });
 });
 
-function showView(name){
-  document.querySelectorAll(".view").forEach(v=>v.style.display="none");
-  const el = $("view-"+name);
-  if(el) el.style.display = "";
-  if(name === "historico") refreshHistorico();
-  if(name === "resumen") calcResumen();
-  if(name === "estadisticas") renderStats();
+/* ===== Init date ===== */
+const fechaEl = document.getElementById("fecha");
+const diaEl = document.getElementById("diaNombre");
+function setToday(){
+  const now = new Date();
+  const iso = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
+  fechaEl.value = iso;
+  diaEl.value = dayNameFromISO(iso);
 }
+setToday();
 
-/* ========================
-   HOY: UI + Guardar
-======================== */
-function setHoyDefaults(){
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = pad2(today.getMonth()+1);
-  const dd = pad2(today.getDate());
-  const iso = `${yyyy}-${mm}-${dd}`;
-  $("dFecha").value = iso;
-  updateDayName();
-  $("dEntrada").value = "";
-  $("dSalida").value = "";
-  $("dRefrig").value = 60;
-  $("dNotas").value = "";
-  $("dFeriado").checked = false;
-  $("dSabado").checked = false;
-  $("dForzar").checked = false;
-  updatePreviewDay();
-}
-
-function updateDayName(){
-  const d = $("dFecha").value;
-  if(!d){ $("dDia").value=""; return; }
-  const dt = new Date(d+"T00:00:00");
-  $("dDia").value = WEEKDAYS[dt.getDay()] || "";
-}
-$("dFecha").addEventListener("change", ()=>{ updateDayName(); updatePreviewDay(); });
-["dEntrada","dSalida","dRefrig","dFeriado","dSabado"].forEach(id=>{
-  $(id).addEventListener("input", updatePreviewDay);
-  $(id).addEventListener("change", updatePreviewDay);
+fechaEl.addEventListener("change", ()=>{
+  const iso = fechaEl.value;
+  diaEl.value = iso ? dayNameFromISO(iso) : "";
+  recalcHoy();
 });
 
-function updatePreviewDay(){
+/* ===== Recalc HOY ===== */
+function recalcHoy(){
   const cfg = loadCfg();
-  $("pillJornada").textContent = minToHHMM(cfg.jornadaMin);
+  const iso = fechaEl.value;
+  const entrada = document.getElementById("entrada").value || "07:00";
+  const salida = document.getElementById("salida").value || "17:36";
+  const refrigerioMin = Number(document.getElementById("refrigerio").value||0);
+  const notas = document.getElementById("notas").value || "";
+  const feriado = document.getElementById("chkFeriado").checked;
 
-  const entry = {
-    fecha: $("dFecha").value,
-    entrada: $("dEntrada").value,
-    salida: $("dSalida").value,
-    refrig: $("dRefrig").value,
-    feriado: $("dFeriado").checked,
-    sabado: $("dSabado").checked
-  };
-  const r = calcDay(entry, cfg);
-  const extra = r.e25 + r.e35 + r.e100;
+  if(!iso) return;
 
-  $("rTrab").textContent = minToHHMM(r.worked);
-  $("rOrd").textContent = minToHHMM(r.ord);
-  $("rExtra").textContent = minToHHMM(extra);
-  $("rE25").textContent = minToHHMM(r.e25);
-  $("rE35").textContent = minToHHMM(r.e35);
-  $("rE100").textContent = minToHHMM(r.e100);
+  const rec = computeDayRecord({iso, entrada, salida, refrigerioMin, feriado, notas}, cfg.jornadaLV);
+
+  document.getElementById("kTrab").textContent = minToHHMM(rec.totalMin);
+  document.getElementById("kOrd").textContent = minToHHMM(rec.ordMin);
+  const ext = rec.x25Min + rec.x35Min + rec.x100Min;
+  document.getElementById("kExt").textContent = minToHHMM(ext);
+  document.getElementById("k25").textContent = minToHHMM(rec.x25Min);
+  document.getElementById("k35").textContent = minToHHMM(rec.x35Min);
+  document.getElementById("k100").textContent = minToHHMM(rec.x100Min);
 }
+["entrada","salida","refrigerio","notas","chkFeriado"].forEach(id=>{
+  document.getElementById(id).addEventListener("input", recalcHoy);
+  document.getElementById(id).addEventListener("change", recalcHoy);
+});
+recalcHoy();
 
-$("btnLimpiarHoy").addEventListener("click", setHoyDefaults);
-
-$("btnGuardarHoy").addEventListener("click", ()=>{
+/* ===== Save day ===== */
+document.getElementById("btnGuardarDia").addEventListener("click", ()=>{
   const cfg = loadCfg();
-  const fecha = $("dFecha").value;
-  const entrada = $("dEntrada").value;
-  const salida = $("dSalida").value;
-  const forzar = $("dForzar").checked;
+  const iso = fechaEl.value;
+  if(!iso){ toast("Falta fecha"); return; }
 
-  if(!fecha) return alert("Falta la fecha.");
-  if((!entrada || !salida) && !forzar){
-    return alert("Falta entrada/salida. Marca 'Guardar aunque falte algo' si quieres guardarlo así.");
+  const entrada = document.getElementById("entrada").value || "07:00";
+  const salida = document.getElementById("salida").value || "17:36";
+  const refrigerioMin = Number(document.getElementById("refrigerio").value||0);
+  const notas = (document.getElementById("notas").value||"").trim();
+  const feriado = document.getElementById("chkFeriado").checked;
+
+  const rec = computeDayRecord({iso, entrada, salida, refrigerioMin, feriado, notas}, cfg.jornadaLV);
+
+  const keyMes = isoToKeyMes(iso);
+  const store = getMesStore(keyMes);
+
+  // replace if same date exists
+  const idx = store.dias.findIndex(d => d.iso === iso);
+  if(idx>=0) store.dias[idx] = rec;
+  else store.dias.push(rec);
+
+  // sort by date
+  store.dias.sort((a,b)=> a.iso.localeCompare(b.iso));
+
+  setMesStore(keyMes, store);
+  toast("Día guardado ✅");
+  refreshMesSelects();
+  recalcAll();
+});
+
+/* ===== Clear day inputs ===== */
+document.getElementById("btnLimpiarDia").addEventListener("click", ()=>{
+  document.getElementById("entrada").value = "07:00";
+  document.getElementById("salida").value = "17:36";
+  document.getElementById("refrigerio").value = "60";
+  document.getElementById("notas").value = "";
+  document.getElementById("chkFeriado").checked = false;
+  recalcHoy();
+  toast("Limpio 🧹");
+});
+
+/* Jump to Historico month */
+document.getElementById("btnVerMesActual").addEventListener("click", ()=>{
+  setActivePage("historico");
+  const keyMes = isoToKeyMes(fechaEl.value);
+  refreshMesSelects();
+  document.getElementById("selMes").value = keyMes;
+  renderHistorico();
+});
+
+/* ===== Historico ===== */
+const selMes = document.getElementById("selMes");
+const buscaEl = document.getElementById("busca");
+buscaEl.addEventListener("input", renderHistorico);
+selMes.addEventListener("change", renderHistorico);
+
+document.getElementById("btnRefrescarHist").addEventListener("click", renderHistorico);
+
+document.getElementById("btnBorrarMes").addEventListener("click", ()=>{
+  const mes = selMes.value;
+  if(!mes) return;
+  const ok = confirm(`¿Borrar todo el mes ${mes}?`);
+  if(!ok) return;
+  localStorage.removeItem(`mcH:${mes}`);
+  refreshMesSelects();
+  renderHistorico();
+  renderResumen();
+  renderBoleta();
+  renderStats();
+  toast("Mes borrado 🗑️");
+});
+
+function renderHistorico(){
+  refreshMesSelects();
+  const mes = selMes.value || (listMesKeys()[0] || isoToKeyMes(fechaEl.value));
+  selMes.value = mes;
+  const store = getMesStore(mes);
+  const q = (buscaEl.value||"").trim().toLowerCase();
+  const body = document.getElementById("histBody");
+  body.innerHTML = "";
+
+  let dias = store.dias || [];
+  if(q){
+    dias = dias.filter(d =>
+      d.dmy.toLowerCase().includes(q) ||
+      d.iso.toLowerCase().includes(q) ||
+      (d.notas||"").toLowerCase().includes(q) ||
+      (d.diaNombre||"").toLowerCase().includes(q)
+    );
   }
 
-  const arr = loadEntries();
-
-  // reemplazar si ya existe ese día
-  const idx = arr.findIndex(x=>x.fecha === fecha);
-  const item = {
-    fecha,
-    entrada: entrada || "",
-    salida: salida || "",
-    refrig: Number($("dRefrig").value||0),
-    notas: $("dNotas").value || "",
-    feriado: $("dFeriado").checked,
-    sabado: $("dSabado").checked
-  };
-
-  if(idx >= 0) arr[idx] = item;
-  else arr.push(item);
-
-  // ordenar
-  arr.sort((a,b)=> (a.fecha < b.fecha ? -1 : 1));
-  saveEntries(arr);
-
-  alert("✅ Guardado.");
-  updatePreviewDay();
-});
-
-/* ========================
-   HISTÓRICO
-======================== */
-function refreshHistorico(){
-  const cfg = loadCfg();
-  const entries = loadEntries();
-  const ym = $("hMes").value || (new Date().toISOString().slice(0,7));
-  $("hMes").value = ym;
-
-  const tbody = $("tablaHist").querySelector("tbody");
-  tbody.innerHTML = "";
-
-  const rows = entries.filter(e => ymFromDateStr(e.fecha) === ym);
-
-  for(const e of rows){
-    const dt = new Date(e.fecha+"T00:00:00");
-    const dayName = WEEKDAYS[dt.getDay()];
-    const r = calcDay(e, cfg);
-
-    const flags = [
-      e.feriado ? "Feriado" : "",
-      e.sabado ? "Sáb(em)" : "",
-      e.notas ? "Nota" : ""
-    ].filter(Boolean).join(", ");
-
+  if(dias.length===0){
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${e.fecha}</td>
-      <td>${dayName}</td>
-      <td>${e.entrada||"-"}</td>
-      <td>${e.salida||"-"}</td>
-      <td class="right">${minToHHMM(r.worked)}</td>
-      <td class="right">${minToHHMM(r.ord)}</td>
-      <td class="right">${minToHHMM(r.e25)}</td>
-      <td class="right">${minToHHMM(r.e35)}</td>
-      <td class="right">${minToHHMM(r.e100)}</td>
-      <td>${flags || "-"}</td>
-      <td class="right"><button class="btn secondary" data-del="${e.fecha}">Eliminar</button></td>
-    `;
-    tbody.appendChild(tr);
+    tr.innerHTML = `<td colspan="11" class="muted">No hay registros en este mes.</td>`;
+    body.appendChild(tr);
+    return;
   }
 
-  tbody.querySelectorAll("button[data-del]").forEach(btn=>{
+  dias.forEach(d=>{
+    const tr = document.createElement("tr");
+    const total = minToHHMM(d.totalMin);
+    const ord = minToHHMM(d.ordMin);
+    const h25 = minToHHMM(d.x25Min);
+    const h35 = minToHHMM(d.x35Min);
+    const h100 = minToHHMM(d.x100Min);
+    const fer = d.feriado ? "✅" : "";
+    tr.innerHTML = `
+      <td class="mono">${d.dmy} <span class="muted small">${fer}</span></td>
+      <td>${d.diaNombre}</td>
+      <td class="mono">${d.entrada}</td>
+      <td class="mono">${d.salida}</td>
+      <td class="right mono">${total}</td>
+      <td class="right mono">${ord}</td>
+      <td class="right mono">${h25}</td>
+      <td class="right mono">${h35}</td>
+      <td class="right mono">${h100}</td>
+      <td>${(d.notas||"")}</td>
+      <td class="no-print">
+        <button class="btn danger" data-del="${d.iso}" style="padding:8px 10px;border-radius:14px">🗑️</button>
+      </td>
+    `;
+    body.appendChild(tr);
+  });
+
+  // delete day
+  body.querySelectorAll("button[data-del]").forEach(btn=>{
     btn.addEventListener("click", ()=>{
-      const fecha = btn.getAttribute("data-del");
-      const arr = loadEntries().filter(x=>x.fecha !== fecha);
-      saveEntries(arr);
-      refreshHistorico();
+      const iso = btn.getAttribute("data-del");
+      const ok = confirm(`¿Borrar el día ${isoToDMY(iso)}?`);
+      if(!ok) return;
+      const store2 = getMesStore(mes);
+      store2.dias = (store2.dias||[]).filter(x => x.iso !== iso);
+      setMesStore(mes, store2);
+      renderHistorico();
+      renderResumen();
+      renderBoleta();
+      renderStats();
+      toast("Día borrado 🗑️");
     });
   });
 }
 
-$("btnRefrescarHist").addEventListener("click", refreshHistorico);
-
-$("btnBorrarMes").addEventListener("click", ()=>{
-  const ym = $("hMes").value;
-  if(!ym) return alert("Selecciona un mes.");
-  if(!confirm("¿Borrar todos los registros de ese mes?")) return;
-  const arr = loadEntries().filter(e => ymFromDateStr(e.fecha) !== ym);
-  saveEntries(arr);
-  refreshHistorico();
+/* ===== Resumen ===== */
+const selMesResumen = document.getElementById("selMesResumen");
+selMesResumen.addEventListener("change", renderResumen);
+document.getElementById("cfgJornada").addEventListener("change", ()=>{
+  document.getElementById("cfgJornada2").value = document.getElementById("cfgJornada").value;
+  saveCfg();
 });
 
-/* ========================
-   RESUMEN
-======================== */
-function sumMonth(ym){
-  const cfg = loadCfg();
-  const entries = loadEntries().filter(e=> ymFromDateStr(e.fecha)===ym);
-  let dias=0, ord=0, e25=0, e35=0, e100=0, fer=0;
-
-  for(const e of entries){
-    const r = calcDay(e, cfg);
-    const hasWork = r.worked > 0 || e.notas;
-    if(hasWork) dias += 1;
-    ord += r.ord;
-    e25 += r.e25;
-    e35 += r.e35;
-    e100 += r.e100;
-    if(e.feriado) fer += 1;
-  }
-  return {dias, ord, e25, e35, e100, fer};
+function sumMes(mes){
+  const store = getMesStore(mes);
+  const dias = store.dias || [];
+  let ord=0, x25=0, x35=0, x100=0, total=0;
+  dias.forEach(d=>{
+    ord += d.ordMin||0;
+    x25 += d.x25Min||0;
+    x35 += d.x35Min||0;
+    x100 += d.x100Min||0;
+    total += d.totalMin||0;
+  });
+  return { diasCount:dias.length, ord, x25, x35, x100, total };
 }
 
-function calcResumen(){
-  const ym = $("rMes").value || (new Date().toISOString().slice(0,7));
-  $("rMes").value = ym;
-  const s = sumMonth(ym);
+function renderResumen(){
+  refreshMesSelects();
+  const mes = selMesResumen.value || (listMesKeys()[0] || isoToKeyMes(fechaEl.value));
+  selMesResumen.value = mes;
+  const s = sumMes(mes);
+  const ext = s.x25+s.x35+s.x100;
 
-  $("sumDias").textContent = s.dias;
-  $("sumOrd").textContent = minToHHMM(s.ord);
-  $("sumE25").textContent = minToHHMM(s.e25);
-  $("sumE35").textContent = minToHHMM(s.e35);
-  $("sumE100").textContent = minToHHMM(s.e100);
-  $("sumFeriados").textContent = s.fer;
+  document.getElementById("rDias").textContent = s.diasCount;
+  document.getElementById("rOrd").textContent = minToHHMM(s.ord);
+  document.getElementById("rExt").textContent = minToHHMM(ext);
+  document.getElementById("r25").textContent = minToHHMM(s.x25);
+  document.getElementById("r35").textContent = minToHHMM(s.x35);
+  document.getElementById("r100").textContent = minToHHMM(s.x100);
 }
 
-$("btnCalcularResumen").addEventListener("click", calcResumen);
-
-$("btnLimpiarDatos").addEventListener("click", ()=>{
-  if(!confirm("¿Borrar TODOS tus registros guardados en este teléfono?")) return;
-  localStorage.removeItem(LS_KEYS.entries);
-  alert("Listo. Se borraron tus datos.");
-  refreshHistorico();
-  calcResumen();
-  renderStats();
+/* ===== Boleta ===== */
+const selMesBoleta = document.getElementById("selMesBoleta");
+selMesBoleta.addEventListener("change", renderBoleta);
+document.getElementById("modoBoleta").addEventListener("change", renderBoleta);
+["bBasico","bAsigFam","bDiasMesLV","bJornada"].forEach(id=>{
+  document.getElementById(id).addEventListener("input", renderBoleta);
+  document.getElementById(id).addEventListener("change", renderBoleta);
 });
 
-/* ========================
-   BOLETA
-======================== */
-function initBoletaCfgInputs(){
-  const cfg = loadCfg();
-  $("bJornada").value = minToHHMM(cfg.jornadaMin);
-  $("dAfpObl").value = cfg.afpObl;
-  $("dAfpPri").value = cfg.afpPri;
-  $("dAfpCom").value = cfg.afpCom;
-}
+function renderBoleta(){
+  refreshMesSelects();
+  const mes = selMesBoleta.value || (listMesKeys()[0] || isoToKeyMes(fechaEl.value));
+  selMesBoleta.value = mes;
 
-function calcBoleta(){
-  const cfg = loadCfg();
+  const modo = document.getElementById("modoBoleta").value;
+  const basico = Number(document.getElementById("bBasico").value||0);
+  const asig = Number(document.getElementById("bAsigFam").value||0);
+  const diasMesLV = Math.max(1, Number(document.getElementById("bDiasMesLV").value||23));
+  const jornada = (document.getElementById("bJornada").value||"09:36").trim();
+  const jornadaMin = hhmmToMin(jornada);
 
-  // guardar AFP config si el usuario cambia
-  cfg.afpObl = Number($("dAfpObl").value||defaultCfg.afpObl);
-  cfg.afpPri = Number($("dAfpPri").value||defaultCfg.afpPri);
-  cfg.afpCom = Number($("dAfpCom").value||defaultCfg.afpCom);
-  saveCfg(cfg);
+  const s = sumMes(mes);
 
-  const modo = $("bModo").value;
-  const basico = Number($("bBasico").value||0);
-  const fam = Number($("bAsigFam").value||0);
-  const diasMes = Math.max(1, Number($("bDiasMes").value||23));
-  const jornadaMin = hhmmToMin($("bJornada").value) || cfg.jornadaMin;
+  
 
-  const ym = $("bMesCalc").value || (new Date().toISOString().slice(0,7));
-  $("bMesCalc").value = ym;
+  
+  // Días L-V trabajados registrados
+  const store = getMesStore(mes);
+  const diasLV = (store.dias||[]).filter(d=>{
+    const idx = dayIndexFromISO(d.iso);
+    return idx>=1 && idx<=5; // lun-vie
+  }).length;
 
-  const s = sumMonth(ym);
-
-  // horas para cálculo
-  const ordMin = s.ord;
-  const e25Min = s.e25;
-  const e35Min = s.e35;
-  const e100Min = s.e100;
-
-  const jornadaH = jornadaMin/60;
-  const horaBase = basico / (diasMes * jornadaH); // aproximación (laborables L–V)
-
-  const e25Pay = (e25Min/60) * horaBase * 1.25;
-  const e35Pay = (e35Min/60) * horaBase * 1.35;
-  const e100Pay = (e100Min/60) * horaBase * 2.00;
-
-  // básico acumulado o proyección
-  let basicoCalc = basico;
-  if(modo === "acumulado"){
-    // proporcional: según días registrados vs días del mes
-    // (si quieres que sea por horas ordinarias, también se puede)
-    basicoCalc = basico * (s.dias / diasMes);
+  let basicoModo = 0;
+  if(modo==="proyeccion"){
+    basicoModo = basico + asig;
+  } else {
+    // acumulado proporcional según días L-V registrados vs díasMesLV
+    basicoModo = (basico + asig) * (diasLV / diasMesLV);
   }
 
-  const ingresoTotal = basicoCalc + e25Pay + e35Pay + e100Pay + fam;
+  // Valor hora ordinaria referencia: (básico modo / (diasMesLV * jornadaHoras))
+  const jornadaHoras = jornadaMin / 60;
+  const horaOrd = (diasMesLV>0 && jornadaHoras>0) ? (basico / (diasMesLV * jornadaHoras)) : 0;
 
-  const afpObl = ingresoTotal * (cfg.afpObl/100);
-  const afpPri = ingresoTotal * (cfg.afpPri/100);
-  const afpCom = ingresoTotal * (cfg.afpCom/100);
-  const descTotal = afpObl + afpPri + afpCom;
+  // pagos extras (estimado):
+  const h25 = s.x25 / 60;
+  const h35 = s.x35 / 60;
+  const h100 = s.x100 / 60;
 
-  const neto = ingresoTotal - descTotal;
-  const essalud = ingresoTotal * 0.09;
+  const p25 = h25 * horaOrd * 1.25;
+  const p35 = h35 * horaOrd * 1.35;
+  const p100 = h100 * horaOrd * 2.00; // 100% = doble (1 + 1)
 
-  $("biBasico").textContent = money(basicoCalc);
-  $("biE25").textContent = money(e25Pay);
-  $("biE35").textContent = money(e35Pay);
-  $("biE100").textContent = money(e100Pay);
-  $("biFam").textContent = money(fam);
-  $("biTotal").textContent = money(ingresoTotal);
+  const ingresos = basicoModo + p25 + p35 + p100;
 
-  $("bdObl").textContent = "- " + money(afpObl);
-  $("bdPri").textContent = "- " + money(afpPri);
-  $("bdCom").textContent = "- " + money(afpCom);
-  $("bdTotal").textContent = "- " + money(descTotal);
+  document.getElementById("outBasico").textContent = money(basicoModo);
+  document.getElementById("outHora").textContent = money(horaOrd);
 
-  $("bNeto").textContent = money(neto);
-  $("bEssalud").textContent = money(essalud);
+  document.getElementById("outH25").textContent = minToHHMM(s.x25);
+  document.getElementById("outH35").textContent = minToHHMM(s.x35);
+  document.getElementById("outH100").textContent = minToHHMM(s.x100);
+
+  document.getElementById("outP25").textContent = money(p25);
+  document.getElementById("outP35").textContent = money(p35);
+  document.getElementById("outP100").textContent = money(p100);
+  document.getElementById("outIng").textContent = money(ingresos);
 }
 
-$("btnCalcularBoleta").addEventListener("click", calcBoleta);
-["bModo","bBasico","bAsigFam","bDiasMes","bJornada","bMesCalc","dAfpObl","dAfpPri","dAfpCom"].forEach(id=>{
-  $(id).addEventListener("input", ()=>{ /* opcional: auto-calc */ });
-});
+document.getElementById("btnImprimir").addEventListener("click", ()=> window.print());
 
-/* ========================
-   ESTADÍSTICAS
-======================== */
+/* ===== Estadísticas ===== */
 function renderStats(){
-  const box = $("statsBox");
-  const entries = loadEntries();
-  const cfg = loadCfg();
-
-  if(entries.length === 0){
-    box.innerHTML = `<div class="card" style="background:rgba(255,255,255,.03)"><b>Sin datos</b><div class="muted">Registra días en “Hoy”.</div></div>`;
+  const tbody = document.getElementById("statsBody");
+  tbody.innerHTML = "";
+  const meses = listMesKeys().slice(0,12);
+  if(meses.length===0){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="7" class="muted">Aún no hay meses guardados.</td>`;
+    tbody.appendChild(tr);
     return;
   }
+  meses.forEach(m=>{
+    const s = sumMes(m);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="mono">${m}</td>
+      <td class="right mono">${s.diasCount}</td>
+      <td class="right mono">${minToHHMM(s.ord)}</td>
+      <td class="right mono">${minToHHMM(s.x25)}</td>
+      <td class="right mono">${minToHHMM(s.x35)}</td>
+      <td class="right mono">${minToHHMM(s.x100)}</td>
+      <td class="right mono">${minToHHMM(s.total)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
 
-  // últimos 30 días
-  const now = new Date();
-  const since = new Date(now.getTime() - 30*24*60*60*1000);
-  let workMin=0, extraMin=0;
-
-  for(const e of entries){
-    const dt = new Date(e.fecha+"T00:00:00");
-    if(dt >= since){
-      const r = calcDay(e, cfg);
-      workMin += r.worked;
-      extraMin += (r.e25+r.e35+r.e100);
-    }
+/* ===== Config buttons ===== */
+document.getElementById("btnGuardarCfg").addEventListener("click", saveCfg);
+document.getElementById("btnBorrarTodo").addEventListener("click", ()=>{
+  const ok = confirm("¿Borrar TODO lo guardado en este teléfono? (No se puede deshacer)");
+  if(!ok) return;
+  // remove only mcH keys
+  const toDelete = [];
+  for(let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    if(k && k.startsWith("mcH:")) toDelete.push(k);
   }
-
-  box.innerHTML = `
-    <div class="card" style="background:rgba(255,255,255,.03)">
-      <div class="muted">Últimos 30 días</div>
-      <div style="font-size:26px; font-weight:900">${minToHHMM(workMin)}</div>
-      <div class="muted">Horas trabajadas</div>
-    </div>
-    <div class="card" style="background:rgba(255,255,255,.03)">
-      <div class="muted">Últimos 30 días</div>
-      <div style="font-size:26px; font-weight:900">${minToHHMM(extraMin)}</div>
-      <div class="muted">Horas extra</div>
-    </div>
-  `;
-}
-
-/* ========================
-   CONFIG
-======================== */
-function loadCfgToUI(){
-  const cfg = loadCfg();
-  $("cfgJornadaMin").value = cfg.jornadaMin;
-  $("cfgSabadoModo").value = cfg.sabadoModo;
-  $("cfgFeriadoModo").value = cfg.feriadoModo;
-}
-
-$("btnGuardarCfg").addEventListener("click", ()=>{
-  const cfg = loadCfg();
-  cfg.jornadaMin = Math.max(60, Number($("cfgJornadaMin").value||defaultCfg.jornadaMin));
-  cfg.sabadoModo = $("cfgSabadoModo").value;
-  cfg.feriadoModo = $("cfgFeriadoModo").value;
-  saveCfg(cfg);
-  alert("✅ Configuración guardada.");
-  updatePreviewDay();
-  initBoletaCfgInputs();
+  toDelete.forEach(k=> localStorage.removeItem(k));
+  refreshMesSelects();
+  renderHistorico();
+  renderResumen();
+  renderBoleta();
+  renderStats();
+  toast("Todo borrado 🧨");
 });
 
-$("btnResetCfg").addEventListener("click", ()=>{
-  if(!confirm("¿Restablecer configuración?")) return;
-  saveCfg({...defaultCfg});
-  loadCfgToUI();
-  updatePreviewDay();
-  initBoletaCfgInputs();
-});
+/* ===== Export / Import ===== */
+document.getElementById("btnExport").addEventListener("click", ()=>{
+  const payload = { v:1, exportedAt: new Date().toISOString(), cfg: null, meses:{} };
+  // cfg
+  const cfgRaw = localStorage.getItem(LS_CFG);
+  payload.cfg = cfgRaw ? JSON.parse(cfgRaw) : null;
+  // meses
+  listMesKeys().forEach(m=>{
+    payload.meses[m] = getMesStore(m);
+  });
 
-/* ========================
-   Export / Import (JSON)
-======================== */
-$("btnExport").addEventListener("click", ()=>{
-  const payload = {
-    cfg: loadCfg(),
-    entries: loadEntries(),
-    exportedAt: new Date().toISOString()
-  };
-  const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
+  const text = JSON.stringify(payload, null, 2);
+  const blob = new Blob([text], {type:"application/json"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "mi-control-backup.json";
+  a.download = `mi-control-horas_backup_${Date.now()}.json`;
+  document.body.appendChild(a);
   a.click();
+  a.remove();
   URL.revokeObjectURL(url);
+  toast("Exportado ✅");
 });
 
-$("btnImport").addEventListener("click", ()=>{
+document.getElementById("btnImport").addEventListener("click", ()=>{
   const inp = document.createElement("input");
   inp.type = "file";
   inp.accept = "application/json";
   inp.onchange = async ()=>{
-    const file = inp.files?.[0];
+    const file = inp.files && inp.files[0];
     if(!file) return;
-    const txt = await file.text();
-    const data = safeParseJSON(txt, null);
-    if(!data || !Array.isArray(data.entries)) return alert("Archivo inválido.");
-    if(!confirm("¿Importar datos? Esto reemplazará tus registros actuales.")) return;
-    saveCfg({...defaultCfg, ...(data.cfg||{})});
-    saveEntries(data.entries);
-    alert("✅ Importado.");
-    loadCfgToUI();
-    initBoletaCfgInputs();
-    refreshHistorico();
-    calcResumen();
-    renderStats();
-    updatePreviewDay();
+    const text = await file.text();
+    let data;
+    try{ data = JSON.parse(text); }catch{ alert("Archivo inválido."); return; }
+    if(!data || !data.meses){ alert("No es un backup de Mi Control."); return; }
+
+    const ok = confirm("¿Importar y combinar datos en este teléfono? (No borra, mezcla/actualiza)");
+    if(!ok) return;
+
+    // cfg
+    if(data.cfg){
+      localStorage.setItem(LS_CFG, JSON.stringify(data.cfg));
+    }
+
+    // merge meses (por fecha)
+    for(const mes of Object.keys(data.meses)){
+      const incoming = data.meses[mes];
+      if(!incoming || !Array.isArray(incoming.dias)) continue;
+      const current = getMesStore(mes);
+      const map = new Map();
+      (current.dias||[]).forEach(d=> map.set(d.iso, d));
+      incoming.dias.forEach(d=> map.set(d.iso, d)); // incoming overrides
+      const merged = { keyMes: mes, dias: Array.from(map.values()).sort((a,b)=>a.iso.localeCompare(b.iso)) };
+      setMesStore(mes, merged);
+    }
+
+    loadCfg();
+    refreshMesSelects();
+    recalcAll();
+    toast("Importado ✅");
+    alert("Importación lista ✅");
   };
   inp.click();
 });
 
-/* ========================
-   Init
-======================== */
-(function init(){
-  // defaults mes inputs
-  const ym = new Date().toISOString().slice(0,7);
-  $("hMes").value = ym;
-  $("rMes").value = ym;
-  $("bMesCalc").value = ym;
+/* ===== Selects refresh ===== */
+function refreshMesSelects(){
+  const meses = listMesKeys();
+  const fallback = isoToKeyMes(fechaEl.value);
 
-  setHoyDefaults();
-  loadCfgToUI();
-  initBoletaCfgInputs();
+  function fillSelect(sel){
+    const current = sel.value || (meses[0] || fallback);
+    sel.innerHTML = "";
+    const list = meses.length ? meses : [fallback];
+    list.forEach(m=>{
+      const opt = document.createElement("option");
+      opt.value = m;
+      opt.textContent = m; // YYYY-MM
+      sel.appendChild(opt);
+    });
+    sel.value = list.includes(current) ? current : list[0];
+  }
+
+  fillSelect(selMes);
+  fillSelect(selMesResumen);
+  fillSelect(selMesBoleta);
+}
+
+/* ===== Global recalc ===== */
+function recalcAll(){
+  recalcHoy();
+  renderHistorico();
+  renderResumen();
+  renderBoleta();
   renderStats();
-})();
+}
+
+/* ===== First load ===== */
+loadCfg();
+refreshMesSelects();
+recalcAll();
+
+/* ===== Hash routing ===== */
+function routeFromHash(){
+  const h = (location.hash||"#hoy").replace("#","");
+  const allowed = ["hoy","historico","resumen","boleta","estadisticas","config"];
+  const page = allowed.includes(h) ? h : "hoy";
+  setActivePage(page);
+  if(page==="historico"){ renderHistorico(); }
+  if(page==="resumen"){ renderResumen(); }
+  if(page==="boleta"){ renderBoleta(); }
+  if(page==="estadisticas"){ renderStats(); }
+}
+window.addEventListener("hashchange", routeFromHash);
+routeFromHash();
 </script>
 </body>
 </html>
 
 
-
-
+    
