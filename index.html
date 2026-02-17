@@ -2,17 +2,645 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Mi Control de Horas</title>
+  <meta name="theme-color" content="#3b4fe0" />
+
+  <!-- (Opcional PWA) Si luego creas manifest.webmanifest, descomenta:
+  <link rel="manifest" href="manifest.webmanifest">
+  -->
+
   <style>
-    body{font-family:system-ui,Arial; padding:24px}
-    .box{padding:18px;border:1px solid #ddd;border-radius:12px}
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:#e5e7eb;
+      --primary:#3b4fe0;
+      --primary2:#5b6cff;
+      --good:#059669;
+      --bad:#dc2626;
+      --soft:#eef2ff;
+      --shadow: 0 8px 24px rgba(15,23,42,.08);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      background:rgba(246,247,251,.85);
+      backdrop-filter: blur(8px);
+      border-bottom:1px solid rgba(229,231,235,.7);
+    }
+    .wrap{max-width:980px; margin:0 auto; padding:14px 14px 28px}
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .title{
+      display:flex; flex-direction:column; gap:2px;
+    }
+    .title h1{font-size:18px; margin:0}
+    .title p{font-size:12px; margin:0; color:var(--muted)}
+    .btn{
+      appearance:none; border:1px solid var(--line);
+      background:var(--card);
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow: 0 1px 0 rgba(15,23,42,.03);
+    }
+    .btn.primary{
+      background:linear-gradient(135deg,var(--primary),var(--primary2));
+      color:white; border:none;
+    }
+    .btn.ghost{background:transparent}
+    .grid{
+      display:grid;
+      gap:12px;
+      grid-template-columns: 1fr;
+      margin-top:12px;
+    }
+    @media (min-width:900px){
+      .grid{grid-template-columns: 360px 1fr}
+    }
+    .card{
+      background:var(--card);
+      border:1px solid rgba(229,231,235,.9);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .card h2{
+      margin:0 0 10px 0;
+      font-size:14px;
+      letter-spacing:.2px;
+      color:#111827;
+    }
+    label{font-size:12px; color:var(--muted); display:block; margin:10px 0 6px}
+    input, select{
+      width:100%;
+      padding:11px 12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      outline:none;
+      background:white;
+      font-size:14px;
+    }
+    input:focus, select:focus{border-color:rgba(59,79,224,.5); box-shadow:0 0 0 3px rgba(59,79,224,.12)}
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px}
+    .hint{font-size:12px; color:var(--muted); margin-top:8px; line-height:1.35}
+    .seg{
+      display:flex; gap:8px;
+      background:var(--soft);
+      padding:6px;
+      border-radius:14px;
+      border:1px solid rgba(229,231,235,.9);
+      margin:10px 0 4px;
+    }
+    .seg button{
+      flex:1;
+      border:none;
+      border-radius:12px;
+      padding:10px 10px;
+      font-weight:700;
+      cursor:pointer;
+      background:transparent;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+    }
+    .seg button.active{
+      background:linear-gradient(135deg,var(--primary),var(--primary2));
+      color:white;
+      box-shadow:0 10px 20px rgba(59,79,224,.22);
+    }
+
+    .kpis{
+      display:grid; gap:10px;
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @media(min-width:560px){
+      .kpis{grid-template-columns: repeat(4, 1fr)}
+    }
+    .kpi{
+      background:#fbfdff;
+      border:1px solid rgba(229,231,235,.9);
+      border-radius:14px;
+      padding:10px;
+    }
+    .kpi .k{font-size:12px; color:var(--muted)}
+    .kpi .v{font-size:16px; font-weight:800; margin-top:4px}
+    .table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:8px;
+      font-size:14px;
+    }
+    .table tr{border-bottom:1px solid rgba(229,231,235,.9)}
+    .table td{
+      padding:10px 0;
+      vertical-align:top;
+    }
+    .table td:last-child{text-align:right; font-variant-numeric: tabular-nums}
+    .sectionTitle{
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.8px;
+      margin:14px 0 6px;
+    }
+    .sectionTitle.good{color:var(--good)}
+    .sectionTitle.bad{color:var(--bad)}
+    .totalLine{
+      display:flex; justify-content:space-between; align-items:center;
+      font-weight:900;
+      padding-top:10px;
+      border-top:1px solid rgba(229,231,235,.9);
+      margin-top:10px;
+      font-size:15px;
+    }
+    .neto{
+      margin-top:12px;
+      background:linear-gradient(135deg, rgba(59,79,224,.10), rgba(91,108,255,.10));
+      border:1px solid rgba(59,79,224,.18);
+      border-radius:16px;
+      padding:14px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .neto .label{font-size:12px; color:var(--muted); font-weight:800}
+    .neto .big{
+      font-size:28px;
+      font-weight:950;
+      color:#1e2ad6;
+      font-variant-numeric: tabular-nums;
+    }
+    .actions{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:12px; color:var(--muted);
+      margin-top:8px;
+    }
+    .dot{width:8px; height:8px; border-radius:999px; background:#f59e0b}
+    .small{font-size:12px; color:var(--muted); margin-top:8px}
+    .mono{font-variant-numeric: tabular-nums}
+    .dangerBox{
+      background:#fff7ed;
+      border:1px solid #fed7aa;
+      color:#9a3412;
+      border-radius:14px;
+      padding:10px;
+      font-size:12px;
+      margin-top:10px;
+      line-height:1.35;
+    }
+
+    /* ===== Impresión ===== */
+    @media print{
+      header, .noPrint{display:none !important}
+      body{background:white}
+      .wrap{max-width:900px; padding:0}
+      .card{box-shadow:none; border:1px solid #e5e7eb}
+      .grid{grid-template-columns: 1fr}
+    }
   </style>
 </head>
+
 <body>
-  <div class="box">
-    <h1>✅ GitHub Pages funciona</h1>
-    <p>Si ves esto, tu web ya está publicada correctamente.</p>
+<header class="noPrint">
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">
+        <h1>Mi Control de Horas</h1>
+        <p>Boleta simple (sin encabezado) • Acumulado / Proyección • Imprimir PDF</p>
+      </div>
+      <button class="btn ghost" id="btnReset" title="Borrar datos guardados">🧹 Limpiar</button>
+    </div>
   </div>
+</header>
+
+<main class="wrap">
+  <div class="grid">
+    <!-- Panel de entrada -->
+    <section class="card noPrint">
+      <h2>Datos y asistencia</h2>
+
+      <div class="seg" role="tablist" aria-label="Modo de visualización">
+        <button id="tabAcum" class="active" type="button">📊 Acumulado al día</button>
+        <button id="tabProy" type="button">📈 Proyección mensual</button>
+      </div>
+
+      <div class="pill">
+        <span class="dot"></span>
+        <span id="modoHint">Mostrando cálculo proporcional hasta hoy</span>
+      </div>
+
+      <label>Mes (solo para mostrar)</label>
+      <input id="mes" placeholder="Ej: Febrero 2026" />
+
+      <div class="row">
+        <div>
+          <label>Remuneración básica mensual (S/)</label>
+          <input id="basicaMensual" type="number" inputmode="decimal" step="0.01" placeholder="2700" />
+        </div>
+        <div>
+          <label>Asignación familiar (S/)</label>
+          <input id="asigFam" type="number" inputmode="decimal" step="0.01" placeholder="102.50 (opcional)" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Días laborados (L–V)</label>
+          <input id="diasLaborados" type="number" inputmode="numeric" step="1" placeholder="11" />
+        </div>
+        <div>
+          <label>Días del mes (laborables L–V)</label>
+          <input id="diasMes" type="number" inputmode="numeric" step="1" placeholder="23" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Horas ordinarias acumuladas (HH:MM)</label>
+          <input id="hrsOrd" placeholder="105:00" />
+        </div>
+        <div>
+          <label>Jornada diaria L–V (HH:MM)</label>
+          <input id="jornada" value="09:36" placeholder="09:36" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Horas extra 25% (HH:MM)</label>
+          <input id="extra25" placeholder="04:00" />
+        </div>
+        <div>
+          <label>Horas extra 35% (HH:MM)</label>
+          <input id="extra35" placeholder="01:24" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Feriados trabajados (días)</label>
+          <input id="feriados" type="number" inputmode="numeric" step="1" placeholder="0" />
+        </div>
+        <div>
+          <label>Sábado (emergencia) trabajado (HH:MM)</label>
+          <input id="sabadoHoras" placeholder="00:00" />
+        </div>
+      </div>
+
+      <label>AFP</label>
+      <div class="row3">
+        <div>
+          <label>Obligatorio (%)</label>
+          <input id="afpObl" type="number" step="0.01" value="10" />
+        </div>
+        <div>
+          <label>Prima (%)</label>
+          <input id="afpPri" type="number" step="0.01" value="1.84" />
+        </div>
+        <div>
+          <label>Comisión (%)</label>
+          <input id="afpCom" type="number" step="0.01" value="0.38" />
+        </div>
+      </div>
+
+      <div class="dangerBox">
+        ✅ Regla: La jornada diaria es <b>09:36</b>. <br/>
+        Las horas extra se calculan <b>después</b> de esa jornada (si tú ingresas extra 25% y 35%, el sistema las paga sobre el valor hora).
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="btnCalcular" type="button">Calcular</button>
+        <button class="btn" id="btnImprimir" type="button">🖨️ Imprimir / Exportar PDF</button>
+      </div>
+
+      <p class="hint">
+        • <b>Acumulado al día</b>: paga proporcional (basado en tus días/horas acumuladas).<br/>
+        • <b>Proyección mensual</b>: proyecta como si completas el mes (usa “Días del mes (L–V)”).
+      </p>
+    </section>
+
+    <!-- Boleta simple (resultado) -->
+    <section class="card" id="boleta">
+      <h2>Boleta de pago personal (simple)</h2>
+
+      <div class="kpis">
+        <div class="kpi">
+          <div class="k">Días</div>
+          <div class="v mono" id="kDias">0</div>
+        </div>
+        <div class="kpi">
+          <div class="k">Hrs Ord.</div>
+          <div class="v mono" id="kOrd">0:00</div>
+        </div>
+        <div class="kpi">
+          <div class="k">Extra 25%</div>
+          <div class="v mono" id="kE25">0:00</div>
+        </div>
+        <div class="kpi">
+          <div class="k">Extra 35%</div>
+          <div class="v mono" id="kE35">0:00</div>
+        </div>
+      </div>
+
+      <div class="small" id="subInfo">Mes: —</div>
+
+      <div class="sectionTitle good">INGRESOS</div>
+      <table class="table" aria-label="Ingresos">
+        <tbody>
+          <tr><td>Remuneración básica</td><td class="mono" id="vBasica">S/. 0.00</td></tr>
+          <tr><td>Horas extra 25%</td><td class="mono" id="vE25">S/. 0.00</td></tr>
+          <tr><td>Horas extra 35%</td><td class="mono" id="vE35">S/. 0.00</td></tr>
+          <tr><td>Asignación familiar</td><td class="mono" id="vAsig">S/. 0.00</td></tr>
+        </tbody>
+      </table>
+      <div class="totalLine">
+        <span>TOTAL INGRESOS</span>
+        <span class="mono" id="vTotalIng">S/. 0.00</span>
+      </div>
+
+      <div class="sectionTitle bad">DESCUENTOS</div>
+      <table class="table" aria-label="Descuentos">
+        <tbody>
+          <tr><td>AFP Obligatorio (<span id="pObl">10</span>%)</td><td class="mono" id="vAfpObl">-S/. 0.00</td></tr>
+          <tr><td>AFP Prima (<span id="pPri">1.84</span>%)</td><td class="mono" id="vAfpPri">-S/. 0.00</td></tr>
+          <tr><td>AFP Comisión (<span id="pCom">0.38</span>%)</td><td class="mono" id="vAfpCom">-S/. 0.00</td></tr>
+        </tbody>
+      </table>
+      <div class="totalLine">
+        <span>TOTAL DESCUENTOS</span>
+        <span class="mono" id="vTotalDesc">-S/. 0.00</span>
+      </div>
+
+      <table class="table" aria-label="Aportes del empleador">
+        <tbody>
+          <tr>
+            <td style="color:var(--muted); font-size:12px">
+              EsSalud (9% referencial - aporte del empleador)
+            </td>
+            <td class="mono" id="vEsSalud">S/. 0.00</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="neto">
+        <div>
+          <div class="label">💰 NETO A RECIBIR</div>
+          <div class="small" id="netoNota">Según el modo seleccionado</div>
+        </div>
+        <div class="big" id="vNeto">S/. 0.00</div>
+      </div>
+
+      <div class="small" id="detalleExtra"></div>
+    </section>
+  </div>
+</main>
+
+<script>
+  // ===== Utilidades =====
+  const $ = (id) => document.getElementById(id);
+
+  function parseHHMM(str){
+    const s = (str||"").trim();
+    if(!s) return 0;
+    const m = s.match(/^(\d{1,3})\s*:\s*(\d{1,2})$/);
+    if(!m) return 0;
+    const h = Number(m[1]||0);
+    const mm = Number(m[2]||0);
+    return (h*60)+mm;
+  }
+  function fmtHHMM(mins){
+    mins = Math.max(0, Math.round(mins));
+    const h = Math.floor(mins/60);
+    const m = mins%60;
+    return `${h}:${String(m).padStart(2,"0")}`;
+  }
+  function money(n){
+    const x = Number(n||0);
+    return `S/. ${x.toFixed(2)}`;
+  }
+  function moneyNeg(n){
+    const x = Math.abs(Number(n||0));
+    return `-S/. ${x.toFixed(2)}`;
+  }
+  function clamp(n,min,max){ return Math.min(max, Math.max(min, n)); }
+
+  // ===== Estado =====
+  let modo = "acum"; // "acum" o "proy"
+
+  function save(){
+    const data = {
+      modo,
+      mes: $("mes").value,
+      basicaMensual: $("basicaMensual").value,
+      asigFam: $("asigFam").value,
+      diasLaborados: $("diasLaborados").value,
+      diasMes: $("diasMes").value,
+      hrsOrd: $("hrsOrd").value,
+      jornada: $("jornada").value,
+      extra25: $("extra25").value,
+      extra35: $("extra35").value,
+      feriados: $("feriados").value,
+      sabadoHoras: $("sabadoHoras").value,
+      afpObl: $("afpObl").value,
+      afpPri: $("afpPri").value,
+      afpCom: $("afpCom").value
+    };
+    localStorage.setItem("miControlHoras_v1", JSON.stringify(data));
+  }
+
+  function load(){
+    try{
+      const raw = localStorage.getItem("miControlHoras_v1");
+      if(!raw) return;
+      const d = JSON.parse(raw);
+      modo = d.modo || "acum";
+      $("mes").value = d.mes || "";
+      $("basicaMensual").value = d.basicaMensual || "";
+      $("asigFam").value = d.asigFam || "";
+      $("diasLaborados").value = d.diasLaborados || "";
+      $("diasMes").value = d.diasMes || "";
+      $("hrsOrd").value = d.hrsOrd || "";
+      $("jornada").value = d.jornada || "09:36";
+      $("extra25").value = d.extra25 || "";
+      $("extra35").value = d.extra35 || "";
+      $("feriados").value = d.feriados || "0";
+      $("sabadoHoras").value = d.sabadoHoras || "00:00";
+      $("afpObl").value = d.afpObl || "10";
+      $("afpPri").value = d.afpPri || "1.84";
+      $("afpCom").value = d.afpCom || "0.38";
+    }catch(e){}
+  }
+
+  function setModo(newModo){
+    modo = newModo;
+    $("tabAcum").classList.toggle("active", modo==="acum");
+    $("tabProy").classList.toggle("active", modo==="proy");
+    $("modoHint").textContent =
+      (modo==="acum")
+      ? "Mostrando cálculo proporcional hasta hoy"
+      : "Mostrando proyección para fin de mes";
+    $("netoNota").textContent =
+      (modo==="acum")
+      ? "Cálculo proporcional (acumulado)"
+      : "Proyección mensual (fin de mes)";
+    save();
+    calcular();
+  }
+
+  // ===== Cálculo =====
+  function calcular(){
+    // Inputs
+    const mes = ($("mes").value || "").trim() || "—";
+    const basicaMensual = Number($("basicaMensual").value || 0);
+    const asigFam = Number($("asigFam").value || 0);
+    const diasLaborados = Number($("diasLaborados").value || 0);
+    const diasMes = Number($("diasMes").value || 0);
+
+    const minsOrd = parseHHMM($("hrsOrd").value);
+    const minsJornada = parseHHMM($("jornada").value) || (9*60+36);
+    const minsE25 = parseHHMM($("extra25").value);
+    const minsE35 = parseHHMM($("extra35").value);
+    const minsSab = parseHHMM($("sabadoHoras").value);
+    const feriados = Number($("feriados").value || 0);
+
+    const pObl = Number($("afpObl").value || 10);
+    const pPri = Number($("afpPri").value || 1.84);
+    const pCom = Number($("afpCom").value || 0.38);
+
+    // Resumen KPI
+    $("kDias").textContent = String(diasLaborados || 0);
+    $("kOrd").textContent = fmtHHMM(minsOrd);
+    $("kE25").textContent = fmtHHMM(minsE25);
+    $("kE35").textContent = fmtHHMM(minsE35);
+    $("subInfo").textContent = `Mes: ${mes} • Jornada diaria: ${fmtHHMM(minsJornada)} (L–V)`;
+
+    // Base de cálculo: valor hora
+    // Para simplificar y mantenerlo claro: valorHora = basicaMensual / (diasMes * jornadaHoras)
+    // En proyección: usa diasMes. En acumulado: usa diasMes para valor hora (misma tarifa) y paga básico proporcional por días/horas.
+    const jornadaHoras = minsJornada / 60;
+    const horasMesEstimadas = Math.max(1, (diasMes || 0) * jornadaHoras);
+    const valorHora = (basicaMensual > 0 && diasMes > 0) ? (basicaMensual / horasMesEstimadas) : 0;
+
+    // Básico:
+    // - Modo proy: básico = basicaMensual
+    // - Modo acum: básico proporcional según horas ordinarias acumuladas sobre (diasMes * jornada)
+    const horasOrd = minsOrd / 60;
+    const basicaAcum = (basicaMensual > 0 && diasMes > 0)
+      ? clamp((horasOrd / horasMesEstimadas) * basicaMensual, 0, basicaMensual)
+      : 0;
+    const basica = (modo==="proy") ? basicaMensual : basicaAcum;
+
+    // Extras
+    const horasE25 = minsE25 / 60;
+    const horasE35 = minsE35 / 60;
+    const horasSab = minsSab / 60;
+
+    // Extra 25% y 35% sobre valor hora
+    const pagoE25 = horasE25 * valorHora * 1.25;
+    const pagoE35 = horasE35 * valorHora * 1.35;
+
+    // Sábado (si lo ingresas) lo tratamos como extra 35% por defecto (puedes cambiar luego)
+    const pagoSab = horasSab * valorHora * 1.35;
+
+    // Feriados (si lo ingresas en días) se calcula como un día adicional ordinario (referencial)
+    const pagoFeriados = (feriados > 0) ? feriados * (minsJornada/60) * valorHora : 0;
+
+    // Asignación familiar:
+    // - proy: completa
+    // - acum: proporcional por avance del mes (horasOrd / horasMesEstimadas)
+    const factorAvance = (diasMes > 0) ? clamp(horasOrd / horasMesEstimadas, 0, 1) : 0;
+    const asig = (modo==="proy") ? asigFam : (asigFam * factorAvance);
+
+    // Totales ingresos
+    const totalIng = basica + pagoE25 + pagoE35 + pagoSab + pagoFeriados + asig;
+
+    // Descuentos AFP: aplicamos sobre "remuneración asegurable" (aquí: totalIng, simplificado)
+    const afpObl = totalIng * (pObl/100);
+    const afpPri = totalIng * (pPri/100);
+    const afpCom = totalIng * (pCom/100);
+    const totalDesc = afpObl + afpPri + afpCom;
+
+    // EsSalud (referencial, aporte del empleador)
+    const essalud = totalIng * 0.09;
+
+    // Neto
+    const neto = totalIng - totalDesc;
+
+  // Pintar
+    $("vBasica").textContent = money(basica);
+    $("vE25").textContent = money(pagoE25);
+    $("vE35").textContent = money(pagoE35 + pagoSab + pagoFeriados); // agrupamos para que sea simple
+    $("vAsig").textContent = money(asig);
+    $("vTotalIng").textContent = money(totalIng);
+
+    $("pObl").textContent = pObl.toFixed(2).replace(/\.00$/,"");
+    $("pPri").textContent = pPri.toFixed(2).replace(/\.00$/,"");
+    $("pCom").textContent = pCom.toFixed(2).replace(/\.00$/,"");
+
+    $("vAfpObl").textContent = moneyNeg(afpObl);
+    $("vAfpPri").textContent = moneyNeg(afpPri);
+    $("vAfpCom").textContent = moneyNeg(afpCom);
+    $("vTotalDesc").textContent = moneyNeg(totalDesc);
+
+    $("vEsSalud").textContent = money(essalud);
+    $("vNeto").textContent = money(neto);
+
+    const det = [];
+    if(horasSab>0) det.push(`• Sábado (emergencia) pagado como 35%: ${fmtHHMM(minsSab)} → ${money(pagoSab)}`);
+    if(feriados>0) det.push(`• Feriados (referencial): ${feriados} día(s) → ${money(pagoFeriados)}`);
+    det.push(`• Valor hora estimado: ${money(valorHora)} / hora (según básica y días del mes).`);
+    $("detalleExtra").textContent = det.join("\n");
+
+    save();
+  }
+
+  // ===== Eventos =====
+  $("tabAcum").addEventListener("click", ()=>setModo("acum"));
+  $("tabProy").addEventListener("click", ()=>setModo("proy"));
+  $("btnCalcular").addEventListener("click", calcular);
+  $("btnImprimir").addEventListener("click", ()=>window.print());
+  $("btnReset").addEventListener("click", ()=>{
+    localStorage.removeItem("miControlHoras_v1");
+    location.reload();
+  });
+
+  // Autocalcular al escribir (suave)
+  document.querySelectorAll("input,select").forEach(el=>{
+    el.addEventListener("input", ()=>{ /* no saturar */
+      window.clearTimeout(window.__t);
+      window.__t = window.setTimeout(calcular, 250);
+    });
+    el.addEventListener("change", ()=>{ save(); calcular(); });
+  });
+
+  // ===== Init =====
+  load();
+  setModo(modo);
+  calcular();
+
+  // (Opcional PWA) Service Worker: crea sw.js y descomenta esto
+  // if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js");
+</script>
+
 </body>
 </html>
